@@ -35,6 +35,24 @@ type AdminSubmissionsResponse = {
   error?: string;
 };
 
+type AdminPerson = {
+  id: number;
+  slug: string;
+  fullName: string;
+  program: string;
+  headline: string;
+  email: string;
+  isPublished: boolean;
+  linkCount: number;
+  createdAt: string | null;
+};
+
+type AdminPeopleResponse = {
+  data?: Array<Partial<AdminPerson>>;
+  total?: number;
+  error?: string;
+};
+
 const EMPTY_EDITABLE_PAYLOAD: EditablePayload = {
   fullName: "",
   asuProgram: "",
@@ -50,11 +68,15 @@ const EMPTY_EDITABLE_PAYLOAD: EditablePayload = {
 
 export default function AdminSubmissionsPage() {
   const [token, setToken] = useState("");
+  const [peopleQuery, setPeopleQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "pending" | "approved" | "rejected" | "all"
   >("pending");
   const [submissions, setSubmissions] = useState<AdminSubmission[]>([]);
+  const [peopleRows, setPeopleRows] = useState<AdminPerson[]>([]);
+  const [peopleTotal, setPeopleTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [peopleLoading, setPeopleLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -102,6 +124,91 @@ export default function AdminSubmissionsPage() {
       setError(loadError instanceof Error ? loadError.message : "failed to load submissions");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadPeople() {
+    if (!token.trim()) {
+      setError("enter admin token first.");
+      return;
+    }
+    setPeopleLoading(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const params = new URLSearchParams({
+        limit: "300",
+      });
+      const query = peopleQuery.trim();
+      if (query.length > 0) {
+        params.set("q", query);
+      }
+
+      const response = await fetch(`/api/admin/people?${params.toString()}`, {
+        headers: {
+          "x-admin-token": token.trim(),
+        },
+        cache: "no-store",
+      });
+
+      const payload = (await response.json().catch(() => null)) as
+        | AdminPeopleResponse
+        | null;
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "failed to load people");
+      }
+
+      const normalized = Array.isArray(payload?.data)
+        ? payload.data
+            .map(normalizeAdminPerson)
+            .filter((entry) => Number.isInteger(entry.id) && entry.id > 0)
+        : [];
+      setPeopleRows(normalized);
+      setPeopleTotal(Number(payload?.total ?? normalized.length));
+      setMessage("people loaded.");
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "failed to load people");
+    } finally {
+      setPeopleLoading(false);
+    }
+  }
+
+  async function removePerson(person: AdminPerson) {
+    if (!token.trim()) {
+      setError("enter admin token first.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `remove ${person.fullName} from people? this cannot be undone.`,
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    setError("");
+    setMessage("");
+
+    try {
+      const response = await fetch(`/api/admin/people/${person.id}`, {
+        method: "DELETE",
+        headers: {
+          "x-admin-token": token.trim(),
+        },
+      });
+      const payload = (await response.json().catch(() => null)) as
+        | { error?: string; deleted?: boolean }
+        | null;
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "failed to remove person");
+      }
+
+      setPeopleRows((current) => current.filter((entry) => entry.id !== person.id));
+      setPeopleTotal((current) => Math.max(0, current - 1));
+      setMessage("person removed.");
+    } catch (removeError) {
+      setError(removeError instanceof Error ? removeError.message : "failed to remove person");
     }
   }
 
@@ -392,6 +499,78 @@ export default function AdminSubmissionsPage() {
           })
         )}
       </section>
+
+      <section className="rounded-2xl border border-line/70 bg-surface p-5 sm:p-6">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="display-heading text-2xl">people in db</h2>
+            <p className="mt-1 text-sm text-muted">
+              view members and remove profiles.
+            </p>
+          </div>
+          <p className="text-xs text-muted">{peopleRows.length} loaded · {peopleTotal} total</p>
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-[2fr_auto]">
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-xs tracking-[0.14em] text-muted">search people</span>
+            <input
+              value={peopleQuery}
+              onChange={(event) => {
+                const query = event.currentTarget.value;
+                setPeopleQuery(query);
+              }}
+              placeholder="name, program, headline"
+              className="h-11 rounded-xl border border-line/80 bg-white px-4 text-sm outline-none ring-accent transition focus:ring-2"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={loadPeople}
+            disabled={peopleLoading}
+            className="mt-auto inline-flex h-11 items-center justify-center rounded-full bg-foreground px-5 text-sm font-semibold text-background transition hover:bg-accent-ink disabled:opacity-70"
+          >
+            {peopleLoading ? "loading..." : "load people"}
+          </button>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          {peopleRows.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-line bg-surface-strong/30 p-5 text-sm text-muted">
+              no people loaded yet.
+            </div>
+          ) : (
+            peopleRows.map((person) => (
+              <article
+                key={person.id}
+                className="rounded-xl border border-line/70 bg-white p-3"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{person.fullName}</p>
+                    <p className="truncate text-xs text-muted">{person.program}</p>
+                    <p className="truncate text-xs text-muted">
+                      {person.email || "(no email link)"} · {person.slug}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-muted">
+                      id: {person.id} · links: {person.linkCount}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => removePerson(person)}
+                      className="inline-flex h-8 items-center justify-center rounded-full bg-red-600 px-3 text-xs font-semibold text-white transition hover:bg-red-700"
+                    >
+                      remove
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+      </section>
     </main>
   );
 }
@@ -503,6 +682,20 @@ function normalizeEditablePayload(
     linkedin: toSafeString(payload?.linkedin),
     site: toSafeString(payload?.site),
     avatarDataUrl: toSafeString(payload?.avatarDataUrl),
+  };
+}
+
+function normalizeAdminPerson(entry: Partial<AdminPerson>): AdminPerson {
+  return {
+    id: Number(entry.id ?? 0),
+    slug: toSafeString(entry.slug),
+    fullName: toSafeString(entry.fullName),
+    program: toSafeString(entry.program),
+    headline: toSafeString(entry.headline),
+    email: toSafeString(entry.email),
+    isPublished: entry.isPublished !== false,
+    linkCount: Number(entry.linkCount ?? 0),
+    createdAt: typeof entry.createdAt === "string" ? entry.createdAt : null,
   };
 }
 
