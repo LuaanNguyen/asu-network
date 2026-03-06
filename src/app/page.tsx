@@ -66,11 +66,14 @@ export default function Home() {
           </h1>
           <p className="max-w-5xl text-sm text-muted sm:text-base">
             asu packs an unusually high density of talented engineers,
-            designers, creators, and researchers. this is the place to find the
-            people doing things, from side projects and research labs to
-            startups and student organizations. some are already shipping at a
-            high level, others are just getting started, but the common thread
-            is real work and real momentum.
+            designers, creators, and researchers. <br />
+            <br />
+            this is the place to find the people doing things: some are already
+            shipping at a high level, others are just getting started, but the
+            common thread is real work and real momentum. a directory of the
+            people who actually make this place special.
+            <br />
+            <br />
           </p>
           <button
             type="button"
