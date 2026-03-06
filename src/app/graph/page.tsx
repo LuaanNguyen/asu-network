@@ -1,18 +1,5 @@
-import dynamic from "next/dynamic";
-
 import { samplePeople } from "@/data/sample-data";
-
-const GraphPreview = dynamic(
-  () => import("@/features/graph/graph-preview").then((module) => module.GraphPreview),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="rounded-2xl border border-line bg-surface p-8 text-sm text-muted">
-        Loading graph module...
-      </div>
-    ),
-  },
-);
+import { GraphPreview } from "@/features/graph/graph-preview";
 
 export default function GraphPage() {
   return (
