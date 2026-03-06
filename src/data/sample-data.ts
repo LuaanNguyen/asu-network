@@ -14,6 +14,19 @@ type PersonSeed = {
   includeEmail?: boolean;
 };
 
+const companyPool = [
+  { name: "Microsoft", logoUrl: "https://logo.clearbit.com/microsoft.com" },
+  { name: "Amazon", logoUrl: "https://logo.clearbit.com/amazon.com" },
+  { name: "Google", logoUrl: "https://logo.clearbit.com/google.com" },
+  { name: "NVIDIA", logoUrl: "https://logo.clearbit.com/nvidia.com" },
+  { name: "Adobe", logoUrl: "https://logo.clearbit.com/adobe.com" },
+  { name: "Intel", logoUrl: "https://logo.clearbit.com/intel.com" },
+  { name: "Tesla", logoUrl: "https://logo.clearbit.com/tesla.com" },
+  { name: "DoorDash", logoUrl: "https://logo.clearbit.com/doordash.com" },
+  { name: "Capital One", logoUrl: "https://logo.clearbit.com/capitalone.com" },
+  { name: "Deloitte", logoUrl: "https://logo.clearbit.com/deloitte.com" },
+];
+
 const personSeeds: PersonSeed[] = [
   {
     id: "p-1",
@@ -262,7 +275,7 @@ const personSeeds: PersonSeed[] = [
   },
 ];
 
-export const samplePeople: Person[] = personSeeds.map((seed) => ({
+export const samplePeople: Person[] = personSeeds.map((seed, index) => ({
   id: seed.id,
   slug: seed.slug,
   fullName: seed.fullName,
@@ -284,6 +297,11 @@ export const samplePeople: Person[] = personSeeds.map((seed) => ({
       label: "LinkedIn",
       href: `https://www.linkedin.com/in/example-${seed.slug}`,
     },
+    {
+      type: "x",
+      label: "X",
+      href: `https://x.com/${seed.slug.replaceAll("-", "")}`,
+    },
     ...(seed.includeSite
       ? [
           {
@@ -304,4 +322,5 @@ export const samplePeople: Person[] = personSeeds.map((seed) => ({
       : []),
   ],
   connectedTo: seed.connectedTo,
+  workedAt: [companyPool[index % companyPool.length], companyPool[(index + 3) % companyPool.length]],
 }));

@@ -90,11 +90,15 @@ export const personSkills = pgTable(
   (table) => [primaryKey({ columns: [table.personId, table.skillId] })],
 );
 
-export const organizations = pgTable("organizations", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  type: text("type").notNull(),
-});
+export const organizations = pgTable(
+  "organizations",
+  {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    type: text("type").notNull(),
+  },
+  (table) => [uniqueIndex("organizations_name_idx").on(table.name)],
+);
 
 export const personOrganizations = pgTable(
   "person_organizations",

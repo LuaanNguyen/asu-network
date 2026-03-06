@@ -3,8 +3,10 @@ import { eq, inArray, or } from "drizzle-orm";
 import { getDb } from "../src/db/client";
 import {
   links,
+  organizations,
   people,
   personConnections,
+  personOrganizations,
   personSkills,
   skills,
 } from "../src/db/schema";
@@ -114,6 +116,62 @@ async function main() {
     await db.insert(personSkills).values(personSkillRows).onConflictDoNothing();
   }
 
+  const uniqueOrganizations = Array.from(
+    new Set(samplePeople.flatMap((person) => person.workedAt.map((company) => company.name))),
+  );
+  if (uniqueOrganizations.length > 0) {
+    await db
+      .insert(organizations)
+      .values(uniqueOrganizations.map((name) => ({ name, type: "company" })))
+      .onConflictDoNothing();
+  }
+
+  const organizationRows =
+    uniqueOrganizations.length === 0
+      ? []
+      : await db
+          .select({ id: organizations.id, name: organizations.name })
+          .from(organizations)
+          .where(inArray(organizations.name, uniqueOrganizations));
+  const organizationIdByName = new Map(
+    organizationRows.map((row) => [row.name, row.id]),
+  );
+
+  await db
+    .delete(personOrganizations)
+    .where(inArray(personOrganizations.personId, personIds));
+  const personOrganizationRows = samplePeople.flatMap((person) => {
+    const personId = idBySampleId.get(person.id);
+    if (!personId) {
+      return [];
+    }
+
+    return person.workedAt
+      .map((company) => {
+        const organizationId = organizationIdByName.get(company.name);
+        if (!organizationId) {
+          return null;
+        }
+        return {
+          personId,
+          organizationId,
+          role: "intern",
+        };
+      })
+      .filter(
+        (
+          entry,
+        ): entry is { personId: number; organizationId: number; role: string } =>
+          entry !== null,
+      );
+  });
+  if (personOrganizationRows.length > 0) {
+    await db
+      .insert(personOrganizations)
+      .values(personOrganizationRows)
+      .onConflictDoNothing();
+  }
+
   await db
     .delete(personConnections)
     .where(
@@ -156,7 +214,7 @@ async function main() {
   }
 
   console.log(
-    `seed complete: ${personIds.length} people, ${personSkillRows.length} person_skills, ${connectionRows.length} connections`,
+    `seed complete: ${personIds.length} people, ${personSkillRows.length} person_skills, ${personOrganizationRows.length} person_organizations, ${connectionRows.length} connections`,
   );
 }
 

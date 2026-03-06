@@ -1,6 +1,6 @@
 "use client";
 
-import { Github, LinkIcon, Linkedin, Mail, Search } from "lucide-react";
+import { Github, LinkIcon, Linkedin, Mail, Search, Twitter } from "lucide-react";
 import { forceCollide } from "d3-force-3d";
 import NextImage from "next/image";
 import dynamic from "next/dynamic";
@@ -18,7 +18,7 @@ const LINK_ICON_BY_TYPE = {
   github: Github,
   linkedin: Linkedin,
   email: Mail,
-  x: LinkIcon,
+  x: Twitter,
 };
 
 export function NetworkWorkspace({ className, people }) {
@@ -231,7 +231,24 @@ export function NetworkWorkspace({ className, people }) {
                         className="h-10 w-10 rounded-full border border-line object-cover"
                       />
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-foreground">{person.fullName}</p>
+                        <div className="flex min-w-0 items-center gap-1.5">
+                          <p className="truncate text-sm font-semibold text-foreground">{person.fullName}</p>
+                          {(person.workedAt ?? []).slice(0, 3).map((company) => (
+                            <span
+                              key={`${person.id}-${company.name}`}
+                              title={company.name}
+                              className="inline-flex h-4 w-4 shrink-0 items-center justify-center overflow-hidden rounded border border-line bg-white"
+                            >
+                              <NextImage
+                                src={company.logoUrl}
+                                alt={`${company.name} logo`}
+                                width={16}
+                                height={16}
+                                className="h-4 w-4 object-contain"
+                              />
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
