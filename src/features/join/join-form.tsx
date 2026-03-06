@@ -15,6 +15,7 @@ type JoinFormValues = {
   github: string;
   linkedin: string;
   site: string;
+  website: string;
 };
 
 const initialValues: JoinFormValues = {
@@ -27,6 +28,7 @@ const initialValues: JoinFormValues = {
   linkedin: "",
   email: "",
   site: "",
+  website: "",
   consent: false,
 };
 
@@ -58,15 +60,18 @@ export function JoinForm() {
       });
 
       if (!response.ok) {
-        throw new Error("Submission failed");
+        const errorPayload = (await response.json().catch(() => null)) as
+          | { error?: string }
+          | null;
+        throw new Error(errorPayload?.error ?? "submission failed");
       }
 
       setStatus("success");
       setMessage("Thanks. Your profile request is in review.");
       setValues(initialValues);
-    } catch {
+    } catch (error) {
       setStatus("error");
-      setMessage("Could not submit right now. Please try again.");
+      setMessage(error instanceof Error ? error.message : "could not submit right now. please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -147,6 +152,19 @@ export function JoinForm() {
           onChange={(site) => setValues((current) => ({ ...current, site }))}
         />
       </div>
+
+      <input
+        type="text"
+        name="website"
+        autoComplete="off"
+        tabIndex={-1}
+        aria-hidden="true"
+        value={values.website}
+        onChange={(event) =>
+          setValues((current) => ({ ...current, website: event.currentTarget.value }))
+        }
+        className="hidden"
+      />
 
       <label className="flex items-start gap-3 rounded-xl bg-surface-strong/40 p-4 text-sm">
         <input

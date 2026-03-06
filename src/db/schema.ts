@@ -1,5 +1,6 @@
 import {
   boolean,
+  index,
   integer,
   pgEnum,
   pgTable,
@@ -130,13 +131,23 @@ export const personConnections = pgTable(
   (table) => [primaryKey({ columns: [table.sourcePersonId, table.targetPersonId] })],
 );
 
-export const submissions = pgTable("submissions", {
-  id: serial("id").primaryKey(),
-  payloadJson: text("payload_json").notNull(),
-  status: submissionStatusEnum("status").notNull().default("pending"),
-  reviewNotes: text("review_notes"),
-  submittedAt: timestamp("submitted_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
-});
+export const submissions = pgTable(
+  "submissions",
+  {
+    id: serial("id").primaryKey(),
+    payloadJson: text("payload_json").notNull(),
+    email: text("email").notNull(),
+    ipHash: text("ip_hash").notNull(),
+    userAgent: text("user_agent"),
+    status: submissionStatusEnum("status").notNull().default("pending"),
+    reviewNotes: text("review_notes"),
+    submittedAt: timestamp("submitted_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("submissions_ip_hash_submitted_at_idx").on(table.ipHash, table.submittedAt),
+    index("submissions_email_submitted_at_idx").on(table.email, table.submittedAt),
+  ],
+);

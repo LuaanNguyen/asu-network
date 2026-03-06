@@ -15,6 +15,13 @@
       "when": 1772829370279,
       "tag": "0001_low_leper_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772829792649,
+      "tag": "0002_loose_fat_cobra",
+      "breakpoints": true
     }
   ]
 }

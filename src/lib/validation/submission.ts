@@ -10,8 +10,8 @@ export const submissionSchema = z.object({
   linkedin: z.string().trim().url().optional().or(z.literal("")),
   email: z.string().trim().email(),
   site: z.string().trim().url().optional().or(z.literal("")),
+  website: z.string().trim().max(0).optional().default(""),
   consent: z.literal(true),
 });
 
 export type SubmissionInput = z.infer<typeof submissionSchema>;
-
