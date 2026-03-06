@@ -1,93 +1,35 @@
 # asu.network
 
-asu.network is a one-page talent network for asu builders.
-it combines a searchable people list, a physics graph, and a moderated join flow.
+a webring for arizona state university students.
 
-## stack
+## join asu.network
 
-- next.js (app router) + typescript
-- tailwind css v4
-- drizzle orm + postgres
-- zod validation
-- vitest + playwright
+requirements: asu student + things you are building + at least one public link
 
-## local setup
+1. open the site and click `want to join? fill out the form`
+2. submit your info (full name, email, asu program, grad year are required)
+3. wait for admin review
+4. once approved, your profile shows up in the list + graph
 
-1. install dependencies
+## admin approval
 
-```bash
-pnpm install
-```
+1. go to `/admin/submissions`
+2. paste `ADMIN_TOKEN`
+3. click `refresh` to load submissions
+4. edit/format fields if needed
+5. click `approve with edits` or `reject`
 
-2. create env file
+## admin people controls
 
-```bash
-cp .env.example .env.local
-```
+on `/admin/submissions`, use the `people in db` section to:
 
-3. set required env vars in `.env.local`
-
-- `DATABASE_URL`
-- `RATE_LIMIT_SALT`
-- `ADMIN_TOKEN`
-- `NEXT_PUBLIC_SITE_URL`
-
-4. run migrations and optional seed
-
-```bash
-pnpm db:migrate
-pnpm db:seed
-```
-
-5. start dev server
-
-```bash
-pnpm dev
-```
-
-open `http://localhost:3000`.
-
-## deploy (vercel)
-
-1. import the repo in vercel
-2. set production env vars (`DATABASE_URL`, `RATE_LIMIT_SALT`, `ADMIN_TOKEN`, `NEXT_PUBLIC_SITE_URL`)
-3. deploy `main`
-4. run production migrations:
-
-```bash
-DATABASE_URL="your-prod-db-url" pnpm db:migrate
-```
+- load/search people
+- remove a person from the database
 
 ## contribute
 
-1. create a branch from `main`
-2. make focused changes
-3. run checks before opening pr:
+open a pull request with a clear summary of what changed.
 
-```bash
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm test:e2e
-```
+## source
 
-4. open a pr with a short summary + screenshots for ui changes
-
-## scripts
-
-- `pnpm dev` - start local dev server
-- `pnpm build` - production build
-- `pnpm lint` - eslint
-- `pnpm typecheck` - typescript checks
-- `pnpm test` - unit tests
-- `pnpm test:e2e` - e2e tests
-- `pnpm db:generate` - generate drizzle migration
-- `pnpm db:migrate` - apply migrations
-- `pnpm db:seed` - seed sample network data
-- `pnpm db:studio` - open drizzle studio
-
-## routes
-
-- `/` main one-screen experience
-- `/people/[slug]` profile detail
-- `/admin/submissions` admin moderation view (requires `ADMIN_TOKEN`)
+https://github.com/LuaanNguyen/asu-network
