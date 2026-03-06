@@ -216,9 +216,12 @@ export function NetworkWorkspace({ className, people }) {
 
   return (
     <section
-      className={cn("grid min-h-0 gap-4 lg:h-full lg:grid-cols-2 lg:gap-5", className)}
+      className={cn(
+        "grid min-h-0 gap-3 lg:h-full lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.54fr)] lg:gap-4",
+        className,
+      )}
     >
-      <div className="shell flex rounded-xl border border-line/70 p-1 lg:hidden">
+      <div className="flex w-full rounded-xl border border-line/60 bg-surface/70 p-1 lg:hidden">
         <button
           type="button"
           onClick={() => setMobilePane("list")}
@@ -247,8 +250,10 @@ export function NetworkWorkspace({ className, people }) {
 
       <aside
         className={cn(
-          "shell min-h-0 flex-col overflow-hidden rounded-2xl border border-line/70 p-4 sm:p-6 lg:h-full",
-          mobilePane === "graph" ? "hidden lg:flex" : "flex h-[56dvh] sm:h-[60dvh] lg:h-full",
+          "min-h-0 flex-col overflow-hidden p-1 sm:p-2 lg:h-full",
+          mobilePane === "graph"
+            ? "hidden lg:flex"
+            : "flex h-[54dvh] sm:h-[58dvh] lg:h-full",
         )}
       >
         <header className="space-y-3">
@@ -370,7 +375,9 @@ export function NetworkWorkspace({ className, people }) {
       <section
         className={cn(
           "shell relative min-h-0 overflow-hidden rounded-2xl border border-line/70 p-4 sm:p-5 lg:h-full",
-          mobilePane === "list" ? "hidden lg:block" : "block h-[56dvh] sm:h-[60dvh] lg:h-full",
+          mobilePane === "list"
+            ? "hidden lg:block"
+            : "block h-[62dvh] sm:h-[66dvh] lg:h-full",
         )}
       >
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_14%,rgba(140,29,64,0.24),transparent_42%),radial-gradient(circle_at_84%_20%,rgba(255,198,39,0.2),transparent_46%)]" />

@@ -58,9 +58,9 @@ export default function Home() {
     <>
       <main
         id="top"
-        className="mx-auto flex min-h-[calc(100dvh-132px)] w-full max-w-none flex-col px-4 pb-4 pt-4 sm:px-8 sm:pb-8 sm:pt-7 lg:h-[calc(100dvh-132px)]"
+        className="mx-auto flex min-h-[calc(100dvh-132px)] w-full max-w-none flex-col px-3 pb-3 pt-3 sm:px-5 sm:pb-6 sm:pt-6 lg:h-[calc(100dvh-132px)] lg:px-6"
       >
-        <header className="mb-5 shrink-0 space-y-2.5">
+        <header className="mb-4 shrink-0 space-y-2.5">
           <h1 className="display-heading text-3xl leading-tight sm:text-5xl">
             welcome to <Link href="/">asu.network</Link>
           </h1>
