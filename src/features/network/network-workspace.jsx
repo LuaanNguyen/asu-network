@@ -30,6 +30,7 @@ export function NetworkWorkspace({ className, people }) {
   const graphRef = useRef(null);
   const graphContainerRef = useRef(null);
   const imageCache = useRef(new Map());
+  const hasPlayedIntroRef = useRef(false);
 
   const filteredPeople = useMemo(() => {
     const term = query.trim().toLowerCase();
@@ -130,9 +131,22 @@ export function NetworkWorkspace({ className, people }) {
       return;
     }
 
+    if (!hasPlayedIntroRef.current) {
+      hasPlayedIntroRef.current = true;
+      graph.zoom(0.78, 0);
+      graph.centerAt(0, 36, 0);
+
+      const timer = window.setTimeout(() => {
+        graph.centerAt(0, 0, 1400);
+        graph.zoom(1.14, 1400);
+      }, 110);
+
+      return () => window.clearTimeout(timer);
+    }
+
     const timer = window.setTimeout(() => {
-      graph.zoom(1.14, 420);
-    }, 120);
+      graph.zoom(1.14, 380);
+    }, 80);
 
     return () => window.clearTimeout(timer);
   }, [graphData, graphSize.height, graphSize.width]);
