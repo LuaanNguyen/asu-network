@@ -39,8 +39,16 @@ export default function RootLayout({
               <a href="#top" className="font-display text-xl leading-none">
                 asu.network
               </a>
-              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
-                inspired by uwaterloo.network
+              <p className="font-mono text-[11px] tracking-[0.16em] text-muted">
+                inspired by{" "}
+                <a
+                  href="https://uwaterloo.network"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline-offset-2 hover:underline"
+                >
+                  uwaterloo.network
+                </a>
               </p>
             </nav>
           </header>

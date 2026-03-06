@@ -124,6 +124,19 @@ export function NetworkWorkspace({ className, people }) {
     graph.d3ReheatSimulation?.();
   }, [graphData]);
 
+  useEffect(() => {
+    const graph = graphRef.current;
+    if (!graph || graphSize.width <= 0 || graphSize.height <= 0) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      graph.zoom(1.14, 420);
+    }, 120);
+
+    return () => window.clearTimeout(timer);
+  }, [graphData, graphSize.height, graphSize.width]);
+
   const selectedPerson =
     filteredPeople.find((person) => person.id === activeSelectedId) ??
     people.find((person) => person.id === activeSelectedId) ??
@@ -161,7 +174,7 @@ export function NetworkWorkspace({ className, people }) {
           </label>
         </header>
 
-        <div className="mt-5 hidden grid-cols-[minmax(0,2.2fr)_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.8fr)] gap-3 border-b border-line pb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted md:grid">
+        <div className="mt-5 hidden grid-cols-[minmax(0,2.15fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1.8fr)] gap-2 border-b border-line pb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted md:grid">
           <p>name</p>
           <p>program</p>
           <p>site</p>
@@ -193,7 +206,7 @@ export function NetworkWorkspace({ className, people }) {
                     : "border-line/70 bg-surface hover:border-accent/40",
                 )}
               >
-                <div className="grid gap-3 md:grid-cols-[minmax(0,2.2fr)_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.8fr)] md:items-center">
+                <div className="grid gap-2 md:grid-cols-[minmax(0,2.15fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1.8fr)] md:items-center">
                   <div className="min-w-0">
                     <div className="flex items-center gap-3">
                       <NextImage
