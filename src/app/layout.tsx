@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${sora.variable} ${plexSans.variable} ${plexMono.variable} antialiased`}>
-        <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col">
+        <div className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col">
           <header className="sticky top-0 z-10 px-5 pt-5 sm:px-7">
             <nav className="shell flex items-center justify-between rounded-2xl border border-line/60 px-4 py-3">
               <a href="#top" className="font-display text-xl leading-none">

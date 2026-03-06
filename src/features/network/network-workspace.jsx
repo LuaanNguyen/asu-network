@@ -1,6 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
+import { forceCollide } from "d3-force-3d";
 import NextImage from "next/image";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -93,10 +94,12 @@ export function NetworkWorkspace({ className, people }) {
     if (!graph) {
       return;
     }
-    graph.d3Force("charge")?.strength?.(-560);
-    graph.d3Force("link")?.distance?.(155);
-    graph.d3Force("link")?.strength?.(0.68);
-    graph.d3Force("center")?.strength?.(0.12);
+    graph.d3Force("collide", forceCollide(NODE_RADIUS * 2.35).strength(0.95));
+    graph.d3Force("charge")?.strength?.(-1300);
+    graph.d3Force("charge")?.distanceMax?.(1800);
+    graph.d3Force("link")?.distance?.(255);
+    graph.d3Force("link")?.strength?.(0.24);
+    graph.d3Force("center")?.strength?.(0.04);
     graph.d3ReheatSimulation?.();
   }, [graphData]);
 
@@ -234,9 +237,9 @@ export function NetworkWorkspace({ className, people }) {
               width={graphSize.width}
               height={graphSize.height}
               graphData={graphData}
-              cooldownTicks={130}
-              d3AlphaDecay={0.02}
-              d3VelocityDecay={0.27}
+              cooldownTicks={200}
+              d3AlphaDecay={0.012}
+              d3VelocityDecay={0.2}
               nodeRelSize={7}
               linkWidth={(link) => {
                 const source = getNodeId(link.source);
@@ -323,4 +326,3 @@ function getNodeId(node) {
   }
   return "";
 }
-
