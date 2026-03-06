@@ -7,7 +7,6 @@ import { samplePeople } from "@/data/sample-data";
 import { JoinForm } from "@/features/join/join-form";
 import { NetworkWorkspace } from "@/features/network/network-workspace";
 import type { Person } from "@/lib/validation/person";
-import Link from "next/link";
 
 export default function Home() {
   const [formOpen, setFormOpen] = useState(false);
@@ -58,11 +57,12 @@ export default function Home() {
     <>
       <main
         id="top"
-        className="mx-auto flex min-h-[calc(100dvh-132px)] w-full max-w-none flex-col px-3 pb-3 pt-3 sm:px-5 sm:pb-6 sm:pt-6 lg:h-[calc(100dvh-132px)] lg:px-6"
+        className="mx-auto flex min-h-[calc(100dvh-132px)] w-full max-w-none flex-col px-4 pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-6 lg:h-[calc(100dvh-132px)] lg:px-6"
       >
         <header className="mb-4 shrink-0 space-y-2.5">
           <h1 className="display-heading text-3xl leading-tight sm:text-5xl">
-            welcome to <Link href="/">asu.network</Link>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            welcome to <a href="/">asu.network</a>
           </h1>
           <p className="max-w-5xl text-sm text-muted sm:text-base">
             asu packs an unusually high density of talented engineers,

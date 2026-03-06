@@ -217,7 +217,7 @@ export function NetworkWorkspace({ className, people }) {
   return (
     <section
       className={cn(
-        "grid min-h-0 gap-3 lg:h-full lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-4",
+        "grid min-h-0 gap-4 lg:h-full lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-4",
         className,
       )}
     >
@@ -250,7 +250,7 @@ export function NetworkWorkspace({ className, people }) {
 
       <aside
         className={cn(
-          "min-h-0 flex-col overflow-hidden p-1 sm:p-2 lg:h-full",
+          "min-h-0 flex-col overflow-hidden p-2 sm:p-3 lg:h-full",
           mobilePane === "graph"
             ? "hidden lg:flex"
             : "flex h-[60dvh] sm:h-[64dvh] lg:h-full",
@@ -374,7 +374,7 @@ export function NetworkWorkspace({ className, people }) {
 
       <section
         className={cn(
-          "shell relative min-h-0 overflow-hidden rounded-2xl border border-line/70 p-4 sm:p-5 lg:h-full",
+          "shell relative min-h-0 overflow-hidden rounded-2xl border border-line/70 p-3 sm:p-4 lg:h-full lg:p-5",
           mobilePane === "list"
             ? "hidden lg:block"
             : "block h-[56dvh] sm:h-[60dvh] lg:h-full",
@@ -498,7 +498,21 @@ function getNodeId(node) {
 }
 
 function toBareUrl(href) {
-  return href.replace(/^https?:\/\//i, "");
+  const trimmed = href.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  try {
+    const url = new URL(trimmed);
+    const host = url.host.toLowerCase();
+    const path = url.pathname === "/" ? "" : url.pathname.replace(/\/+$/g, "");
+    return `${host}${path}${url.search}${url.hash}`;
+  } catch {
+    return trimmed
+      .replace(/^[a-z][a-z0-9+.-]*:\/\//i, "")
+      .replace(/\/+$/g, "");
+  }
 }
 
 function ProfileLinkIcon({ href, type, label, onClick }) {

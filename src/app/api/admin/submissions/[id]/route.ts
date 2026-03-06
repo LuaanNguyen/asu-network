@@ -342,8 +342,19 @@ function normalizeOptionalUrl(value: string) {
   if (!trimmed) {
     return "";
   }
-  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)) {
-    return trimmed;
+  const candidate = /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+
+  try {
+    const url = new URL(candidate);
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return candidate;
+    }
+    const host = url.host.toLowerCase();
+    const path = url.pathname === "/" ? "" : url.pathname.replace(/\/+$/g, "");
+    return `${url.protocol}//${host}${path}${url.search}${url.hash}`;
+  } catch {
+    return candidate;
   }
-  return `https://${trimmed}`;
 }
