@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Sora } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -68,8 +69,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "asu.network",
-    description:
-      "find the people building things at asu.",
+    description: "find the people building things at asu.",
     images: ["/twitter-image"],
   },
   robots: {
@@ -92,7 +92,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${sora.variable} ${plexSans.variable} ${plexMono.variable} lowercase antialiased`}>
+      <body
+        className={`${sora.variable} ${plexSans.variable} ${plexMono.variable} lowercase antialiased`}
+      >
         <div className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col">
           <header className="sticky top-0 z-10 px-5 pt-5 sm:px-7">
             <nav className="shell flex items-center justify-between rounded-2xl border border-line/60 px-4 py-3">
@@ -128,6 +130,7 @@ export default function RootLayout({
           </footer>
         </div>
       </body>
+      <Analytics />
     </html>
   );
 }
