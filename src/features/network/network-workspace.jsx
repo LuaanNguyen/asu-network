@@ -30,6 +30,7 @@ const LINK_ICON_BY_TYPE = {
 
 export function NetworkWorkspace({ className, people }) {
   const [query, setQuery] = useState("");
+  const [mobilePane, setMobilePane] = useState("list");
   const [selectedId, setSelectedId] = useState(people[0]?.id ?? "");
   const [graphSize, setGraphSize] = useState({ width: 0, height: 0 });
   const [, refreshImages] = useState(0);
@@ -215,9 +216,41 @@ export function NetworkWorkspace({ className, people }) {
 
   return (
     <section
-      className={cn("grid h-full min-h-0 gap-5 lg:grid-cols-2", className)}
+      className={cn("grid min-h-0 gap-4 lg:h-full lg:grid-cols-2 lg:gap-5", className)}
     >
-      <aside className="shell flex min-h-0 flex-col overflow-hidden rounded-2xl border border-line/70 p-5 sm:p-6">
+      <div className="shell flex rounded-xl border border-line/70 p-1 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setMobilePane("list")}
+          className={cn(
+            "flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition",
+            mobilePane === "list"
+              ? "bg-accent text-white"
+              : "text-muted hover:bg-surface-strong/40",
+          )}
+        >
+          people list
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobilePane("graph")}
+          className={cn(
+            "flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition",
+            mobilePane === "graph"
+              ? "bg-accent text-white"
+              : "text-muted hover:bg-surface-strong/40",
+          )}
+        >
+          graph
+        </button>
+      </div>
+
+      <aside
+        className={cn(
+          "shell min-h-0 flex-col overflow-hidden rounded-2xl border border-line/70 p-4 sm:p-6 lg:h-full",
+          mobilePane === "graph" ? "hidden lg:flex" : "flex h-[56dvh] sm:h-[60dvh] lg:h-full",
+        )}
+      >
         <header className="space-y-3">
           <p className="font-mono text-xs lowercase tracking-[0.16em] text-muted">
             {filteredPeople.length} members · {programCount} programs
@@ -244,93 +277,104 @@ export function NetworkWorkspace({ className, people }) {
         </div>
 
         <ul className="mt-4 flex-1 space-y-2.5 overflow-y-auto pr-1">
-          {filteredPeople.map((person) => {
-            const selected = person.id === activeSelectedId;
-            const site = person.links.find((link) => link.type === "site");
-            const secondaryLinks = person.links.filter(
-              (link) => link.type !== "site",
-            );
+          {filteredPeople.length === 0 ? (
+            <li className="rounded-xl border border-dashed border-line/80 bg-surface p-4 text-sm text-muted">
+              no members yet. use the join form to add the first profile.
+            </li>
+          ) : (
+            filteredPeople.map((person) => {
+              const selected = person.id === activeSelectedId;
+              const site = person.links.find((link) => link.type === "site");
+              const secondaryLinks = person.links.filter(
+                (link) => link.type !== "site",
+              );
 
-            return (
-              <li
-                key={person.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => setSelectedId(person.id)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    setSelectedId(person.id);
-                  }
-                }}
-                className={cn(
-                  "cursor-pointer rounded-xl border p-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
-                  selected
-                    ? "border-accent bg-accent/10 shadow-[0_12px_26px_rgba(140,29,64,0.2)]"
-                    : "border-line/70 bg-surface hover:border-accent/40",
-                )}
-              >
-                <div className="grid gap-2 md:grid-cols-[minmax(0,2.15fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1.8fr)] md:items-center">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-3">
-                      <NextImage
-                        src={person.avatarUrl}
-                        alt={`${person.fullName} avatar`}
-                        width={42}
-                        height={42}
-                        className="h-10 w-10 rounded-full border border-line object-cover"
-                      />
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-foreground">
-                          {person.fullName}
-                        </p>
+              return (
+                <li
+                  key={person.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedId(person.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedId(person.id);
+                    }
+                  }}
+                  className={cn(
+                    "cursor-pointer rounded-xl border p-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                    selected
+                      ? "border-accent bg-accent/10 shadow-[0_12px_26px_rgba(140,29,64,0.2)]"
+                      : "border-line/70 bg-surface hover:border-accent/40",
+                  )}
+                >
+                  <div className="grid gap-2 md:grid-cols-[minmax(0,2.15fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1.8fr)] md:items-center">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-3">
+                        <NextImage
+                          src={person.avatarUrl}
+                          alt={`${person.fullName} avatar`}
+                          width={42}
+                          height={42}
+                          className="h-10 w-10 rounded-full border border-line object-cover"
+                        />
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-foreground">
+                            {person.fullName}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <p className="text-xs text-muted md:text-sm">
-                    {person.program}
-                  </p>
+                    <p className="text-xs text-muted md:text-sm">
+                      {person.program}
+                    </p>
 
-                  <div>
-                    {site ? (
-                      <a
-                        href={site.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        title={site.href}
-                        aria-label={`${person.fullName} site ${site.href}`}
-                        onClick={(event) => event.stopPropagation()}
-                        className="block truncate text-xs text-accent-ink underline-offset-2 hover:underline"
-                      >
-                        {toBareUrl(site.href)}
-                      </a>
-                    ) : (
-                      <span className="text-xs text-muted/70">-</span>
-                    )}
-                  </div>
+                    <div>
+                      {site ? (
+                        <a
+                          href={site.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={site.href}
+                          aria-label={`${person.fullName} site ${site.href}`}
+                          onClick={(event) => event.stopPropagation()}
+                          className="block truncate text-xs text-accent-ink underline-offset-2 hover:underline"
+                        >
+                          {toBareUrl(site.href)}
+                        </a>
+                      ) : (
+                        <span className="text-xs text-muted/70">-</span>
+                      )}
+                    </div>
 
-                  <div className="flex flex-wrap gap-1.5">
-                    {secondaryLinks.map((link) => (
-                      <ProfileLinkIcon
-                        key={link.href}
-                        href={link.href}
-                        label={`${person.fullName} ${link.type}`}
-                        type={link.type}
-                        onClick={(event) => event.stopPropagation()}
-                      />
-                    ))}
+                    <div className="flex flex-wrap gap-1.5">
+                      {secondaryLinks.map((link) => (
+                        <ProfileLinkIcon
+                          key={link.href}
+                          href={link.href}
+                          label={`${person.fullName} ${link.type}`}
+                          type={link.type}
+                          onClick={(event) => event.stopPropagation()}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </li>
-            );
-          })}
+                </li>
+              );
+            })
+          )}
         </ul>
       </aside>
 
-      <section className="shell relative min-h-0 overflow-hidden rounded-2xl border border-line/70 p-4 sm:p-5">
+      <section
+        className={cn(
+          "shell relative min-h-0 overflow-hidden rounded-2xl border border-line/70 p-4 sm:p-5 lg:h-full",
+          mobilePane === "list" ? "hidden lg:block" : "block h-[56dvh] sm:h-[60dvh] lg:h-full",
+        )}
+      >
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_14%,rgba(140,29,64,0.24),transparent_42%),radial-gradient(circle_at_84%_20%,rgba(255,198,39,0.2),transparent_46%)]" />
-        <div ref={graphContainerRef} className="relative h-full min-h-[430px]">
+        <div ref={graphContainerRef} className="relative h-full min-h-0">
           {graphSize.width > 0 && graphSize.height > 0 ? (
             <ForceGraph2D
               ref={graphRef}
@@ -410,7 +454,11 @@ export function NetworkWorkspace({ className, people }) {
                 ctx.stroke();
               }}
             />
-          ) : null}
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-muted">
+              no graph data yet.
+            </div>
+          )}
         </div>
 
         {selectedPerson ? (
