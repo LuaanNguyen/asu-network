@@ -231,24 +231,7 @@ export function NetworkWorkspace({ className, people }) {
                         className="h-10 w-10 rounded-full border border-line object-cover"
                       />
                       <div className="min-w-0">
-                        <div className="flex min-w-0 items-center gap-1.5">
-                          <p className="truncate text-sm font-semibold text-foreground">{person.fullName}</p>
-                          {(person.workedAt ?? []).slice(0, 3).map((company) => (
-                            <span
-                              key={`${person.id}-${company.name}`}
-                              title={company.name}
-                              className="inline-flex h-4 w-4 shrink-0 items-center justify-center overflow-hidden rounded border border-line bg-white"
-                            >
-                              <NextImage
-                                src={company.logoUrl}
-                                alt={`${company.name} logo`}
-                                width={16}
-                                height={16}
-                                className="h-4 w-4 object-contain"
-                              />
-                            </span>
-                          ))}
-                        </div>
+                        <p className="truncate text-sm font-semibold text-foreground">{person.fullName}</p>
                       </div>
                     </div>
                   </div>
