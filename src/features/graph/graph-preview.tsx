@@ -91,12 +91,12 @@ export function GraphPreview({ people }: GraphPreviewProps) {
       </div>
 
       <aside className="rounded-2xl border border-line/80 bg-surface p-5">
-        <p className="mb-2 font-mono text-xs uppercase tracking-[0.2em] text-muted">Selected</p>
+        <p className="mb-2 font-mono text-xs lowercase tracking-[0.2em] text-muted">Selected</p>
         {selected ? (
           <div>
             <h3 className="mb-1 font-display text-xl">{selected.fullName}</h3>
             <p className="mb-3 text-sm text-muted">{selected.headline}</p>
-            <p className="mb-2 text-xs uppercase tracking-[0.16em] text-muted">Connections</p>
+            <p className="mb-2 text-xs lowercase tracking-[0.16em] text-muted">Connections</p>
             <ul className="space-y-2 text-sm">
               {selected.connectedTo.map((id) => {
                 const person = people.find((entry) => entry.id === id);

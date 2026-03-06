@@ -73,7 +73,7 @@ function DirectoryFilters({
 }: DirectoryFiltersProps) {
   return (
     <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
-      <label className="flex flex-col gap-2 font-mono text-xs uppercase tracking-[0.2em] text-muted">
+      <label className="flex flex-col gap-2 font-mono text-xs lowercase tracking-[0.2em] text-muted">
         Search by name, skill, or headline
         <input
           className="h-11 rounded-xl border border-line/80 bg-white px-4 font-sans text-sm tracking-normal text-foreground outline-none ring-accent transition focus:ring-2"
@@ -82,7 +82,7 @@ function DirectoryFilters({
           onChange={(event) => onQueryChange(event.currentTarget.value)}
         />
       </label>
-      <label className="flex flex-col gap-2 font-mono text-xs uppercase tracking-[0.2em] text-muted">
+      <label className="flex flex-col gap-2 font-mono text-xs lowercase tracking-[0.2em] text-muted">
         Program
         <select
           className="h-11 rounded-xl border border-line/80 bg-white px-3 font-sans text-sm tracking-normal text-foreground outline-none ring-accent transition focus:ring-2"
@@ -127,7 +127,7 @@ function DirectoryResults({ people }: { people: Person[] }) {
             {person.focusAreas.map((focus) => (
               <li
                 key={`${person.id}-${focus}`}
-                className="rounded-full border border-line px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-muted"
+                className="rounded-full border border-line px-2.5 py-1 font-mono text-[11px] lowercase tracking-[0.12em] text-muted"
               >
                 {focus}
               </li>

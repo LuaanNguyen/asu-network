@@ -118,7 +118,7 @@ export function JoinForm() {
       />
 
       <label className="flex flex-col gap-2">
-        <span className="font-mono text-xs uppercase tracking-[0.16em] text-muted">Bio</span>
+        <span className="font-mono text-xs lowercase tracking-[0.16em] text-muted">Bio</span>
         <textarea
           className="min-h-28 rounded-xl border border-line/80 bg-white px-4 py-3 text-sm outline-none ring-accent transition focus:ring-2"
           value={values.bio}
@@ -194,7 +194,7 @@ type FieldProps = {
 function Field({ id, label, value, onChange, required, type = "text" }: FieldProps) {
   return (
     <label htmlFor={id} className="flex flex-col gap-2">
-      <span className="font-mono text-xs uppercase tracking-[0.16em] text-muted">{label}</span>
+      <span className="font-mono text-xs lowercase tracking-[0.16em] text-muted">{label}</span>
       <input
         id={id}
         type={type}

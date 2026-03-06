@@ -157,7 +157,7 @@ export function NetworkWorkspace({ className, people }) {
     <section className={cn("grid h-full min-h-0 gap-5 lg:grid-cols-2", className)}>
       <aside className="shell flex min-h-0 flex-col overflow-hidden rounded-2xl border border-line/70 p-5 sm:p-6">
         <header className="space-y-3">
-          <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted">
+          <p className="font-mono text-xs lowercase tracking-[0.16em] text-muted">
             {filteredPeople.length} members · {programCount} programs
           </p>
           <label className="relative block">
@@ -174,7 +174,7 @@ export function NetworkWorkspace({ className, people }) {
           </label>
         </header>
 
-        <div className="mt-5 hidden grid-cols-[minmax(0,2.15fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1.8fr)] gap-2 border-b border-line pb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted md:grid">
+        <div className="mt-5 hidden grid-cols-[minmax(0,2.15fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1.8fr)] gap-2 border-b border-line pb-2 font-mono text-[10px] lowercase tracking-[0.14em] text-muted md:grid">
           <p>name</p>
           <p>program</p>
           <p>site</p>
@@ -235,7 +235,7 @@ export function NetworkWorkspace({ className, people }) {
                         onClick={(event) => event.stopPropagation()}
                         className="block truncate text-xs text-accent-ink underline-offset-2 hover:underline"
                       >
-                        {site.href}
+                        {toBareUrl(site.href)}
                       </a>
                     ) : (
                       <span className="text-xs text-muted/70">-</span>
@@ -330,7 +330,7 @@ export function NetworkWorkspace({ className, people }) {
 
         {selectedPerson ? (
           <div className="pointer-events-none absolute bottom-3 left-3 right-3 rounded-xl border border-line/70 bg-surface/90 p-3 backdrop-blur-sm">
-            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">selected</p>
+            <p className="font-mono text-[10px] lowercase tracking-[0.14em] text-muted">selected</p>
             <p className="mt-1 text-sm font-semibold">{selectedPerson.fullName}</p>
             <p className="text-xs text-muted">{selectedPerson.headline}</p>
           </div>
@@ -351,6 +351,10 @@ function getNodeId(node) {
     }
   }
   return "";
+}
+
+function toBareUrl(href) {
+  return href.replace(/^https?:\/\//i, "");
 }
 
 function ProfileLinkIcon({ href, type, label, onClick }) {
