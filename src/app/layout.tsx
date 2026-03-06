@@ -40,7 +40,7 @@ export default function RootLayout({
                 asu.network
               </a>
               <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
-                ASU Talent Physics Network
+                inspired by uwaterloo.network
               </p>
             </nav>
           </header>
