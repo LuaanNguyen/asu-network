@@ -5,11 +5,12 @@ import { z } from "zod";
 import { getDb } from "@/db/client";
 import { links, people, submissions } from "@/db/schema";
 import { requireAdminToken } from "@/lib/server/admin-auth";
-import { submissionSchema } from "@/lib/validation/submission";
+import { submissionSchema, type SubmissionInput } from "@/lib/validation/submission";
 
 const moderationSchema = z.object({
   action: z.enum(["approve", "reject"]),
   reviewNotes: z.string().trim().max(1000).optional().default(""),
+  payloadOverride: z.record(z.string(), z.unknown()).optional(),
 });
 
 type RouteContext = {
@@ -75,7 +76,7 @@ export async function POST(request: Request, { params }: RouteContext) {
     );
   }
 
-  const { action, reviewNotes } = parsedBody.data;
+  const { action, reviewNotes, payloadOverride } = parsedBody.data;
   const reviewedAt = new Date();
 
   if (action === "reject") {
@@ -108,10 +109,24 @@ export async function POST(request: Request, { params }: RouteContext) {
       { status: 422 },
     );
   }
+  const approvedPayloadResult = buildApprovedPayload(
+    parsedSubmissionPayload,
+    payloadOverride,
+  );
+  if (!approvedPayloadResult.success) {
+    return NextResponse.json(
+      {
+        error: "invalid approved payload",
+        issues: approvedPayloadResult.error.flatten(),
+      },
+      { status: 400 },
+    );
+  }
+  const approvedPayload = approvedPayloadResult.data;
 
   try {
     const result = await db.transaction(async (tx) => {
-      const baseSlug = toSlug(parsedSubmissionPayload.fullName);
+      const baseSlug = toSlug(approvedPayload.fullName);
       let slug = baseSlug;
       let attempt = 2;
 
@@ -129,28 +144,28 @@ export async function POST(request: Request, { params }: RouteContext) {
       }
 
       const avatarUrl =
-        parsedSubmissionPayload.avatarDataUrl?.trim() ||
+        approvedPayload.avatarDataUrl?.trim() ||
         `https://api.dicebear.com/9.x/personas/png?seed=${encodeURIComponent(
-          parsedSubmissionPayload.fullName,
+          approvedPayload.fullName,
         )}`;
       const headline = toNonEmptyString(
-        parsedSubmissionPayload.headline,
-        `${parsedSubmissionPayload.asuProgram} @ asu`,
+        approvedPayload.headline,
+        `${approvedPayload.asuProgram} @ asu`,
       );
       const bio = toNonEmptyString(
-        parsedSubmissionPayload.bio,
-        `${parsedSubmissionPayload.fullName} is part of the asu.network builder community.`,
+        approvedPayload.bio,
+        `${approvedPayload.fullName} is part of the asu.network builder community.`,
       );
 
       const insertedPeople = await tx
         .insert(people)
         .values({
           slug,
-          fullName: parsedSubmissionPayload.fullName,
+          fullName: approvedPayload.fullName,
           headline,
           bio,
-          program: parsedSubmissionPayload.asuProgram,
-          gradYear: parsedSubmissionPayload.gradYear,
+          program: approvedPayload.asuProgram,
+          gradYear: approvedPayload.gradYear,
           location: "tempe, az",
           avatarUrl,
           isPublished: true,
@@ -165,34 +180,34 @@ export async function POST(request: Request, { params }: RouteContext) {
       }
 
       const profileLinks = [
-        parsedSubmissionPayload.github
+        approvedPayload.github
           ? {
               personId: person.id,
               type: "github" as const,
-              url: parsedSubmissionPayload.github,
+              url: approvedPayload.github,
               isPublic: true,
             }
           : null,
-        parsedSubmissionPayload.linkedin
+        approvedPayload.linkedin
           ? {
               personId: person.id,
               type: "linkedin" as const,
-              url: parsedSubmissionPayload.linkedin,
+              url: approvedPayload.linkedin,
               isPublic: true,
             }
           : null,
-        parsedSubmissionPayload.site
+        approvedPayload.site
           ? {
               personId: person.id,
               type: "site" as const,
-              url: parsedSubmissionPayload.site,
+              url: approvedPayload.site,
               isPublic: true,
             }
           : null,
         {
           personId: person.id,
           type: "email" as const,
-          url: `mailto:${parsedSubmissionPayload.email}`,
+          url: `mailto:${approvedPayload.email}`,
           isPublic: true,
         },
       ].filter((entry) => entry !== null);
@@ -243,7 +258,7 @@ export async function POST(request: Request, { params }: RouteContext) {
   }
 }
 
-function parseSubmissionPayload(payloadJson: string) {
+function parseSubmissionPayload(payloadJson: string): SubmissionInput | null {
   try {
     const parsed = JSON.parse(payloadJson);
     const result = submissionSchema.safeParse(parsed);
@@ -265,4 +280,70 @@ function toSlug(value: string) {
 function toNonEmptyString(value: string | undefined, fallback: string) {
   const normalized = value?.trim();
   return normalized && normalized.length > 0 ? normalized : fallback;
+}
+
+function buildApprovedPayload(
+  base: SubmissionInput,
+  override: Record<string, unknown> | undefined,
+) {
+  const mergedCandidate = {
+    fullName: normalizeWhitespace(pickString(override, "fullName", base.fullName)),
+    asuProgram: normalizeWhitespace(
+      pickString(override, "asuProgram", base.asuProgram),
+    ),
+    gradYear: pickStringOrNumber(override, "gradYear", base.gradYear),
+    headline: pickString(override, "headline", base.headline ?? "").trim(),
+    bio: pickString(override, "bio", base.bio ?? "").trim(),
+    github: normalizeOptionalUrl(pickString(override, "github", base.github ?? "")),
+    linkedin: normalizeOptionalUrl(
+      pickString(override, "linkedin", base.linkedin ?? ""),
+    ),
+    email: pickString(override, "email", base.email).trim().toLowerCase(),
+    site: normalizeOptionalUrl(pickString(override, "site", base.site ?? "")),
+    avatarDataUrl: pickString(
+      override,
+      "avatarDataUrl",
+      base.avatarDataUrl ?? "",
+    ).trim(),
+    consent: true as const,
+    website: "",
+  };
+
+  return submissionSchema.safeParse(mergedCandidate);
+}
+
+function pickString(
+  source: Record<string, unknown> | undefined,
+  key: string,
+  fallback: string,
+) {
+  const value = source?.[key];
+  return typeof value === "string" ? value : fallback;
+}
+
+function pickStringOrNumber(
+  source: Record<string, unknown> | undefined,
+  key: string,
+  fallback: number,
+) {
+  const value = source?.[key];
+  if (typeof value === "string" || typeof value === "number") {
+    return value;
+  }
+  return fallback;
+}
+
+function normalizeWhitespace(value: string) {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function normalizeOptionalUrl(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "";
+  }
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
 }

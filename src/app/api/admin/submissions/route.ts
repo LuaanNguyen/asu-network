@@ -60,6 +60,18 @@ export async function GET(request: Request) {
           .limit(limit);
   const data = rows.map((row) => {
     const payload = parseSubmissionPayload(row.payloadJson);
+    const editablePayload = {
+      fullName: payload?.fullName ?? "",
+      asuProgram: payload?.asuProgram ?? "",
+      gradYear: payload?.gradYear != null ? String(payload.gradYear) : "",
+      headline: payload?.headline ?? "",
+      bio: payload?.bio ?? "",
+      email: payload?.email ?? row.email ?? "",
+      github: payload?.github ?? "",
+      linkedin: payload?.linkedin ?? "",
+      site: payload?.site ?? "",
+      avatarDataUrl: payload?.avatarDataUrl ?? "",
+    };
     return {
       id: row.id,
       status: row.status,
@@ -71,6 +83,8 @@ export async function GET(request: Request) {
       asuProgram: payload?.asuProgram ?? "",
       headline: payload?.headline ?? "",
       hasAvatar: Boolean(payload?.avatarDataUrl),
+      payloadValid: Boolean(payload),
+      payload: editablePayload,
     };
   });
 

@@ -42,10 +42,16 @@ export function JoinForm() {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const updateValue = <Key extends keyof JoinFormValues>(
+    key: Key,
+    value: JoinFormValues[Key],
+  ) => {
+    setValues((current) => ({ ...current, [key]: value }));
+  };
 
   async function onAvatarFileChange(file: File | null) {
     if (!file) {
-      setValues((current) => ({ ...current, avatarDataUrl: "" }));
+      updateValue("avatarDataUrl", "");
       return;
     }
 
@@ -63,7 +69,7 @@ export function JoinForm() {
 
     try {
       const dataUrl = await readFileAsDataUrl(file);
-      setValues((current) => ({ ...current, avatarDataUrl: dataUrl }));
+      updateValue("avatarDataUrl", dataUrl);
       setStatus("idle");
       setMessage("");
     } catch {
@@ -143,7 +149,7 @@ export function JoinForm() {
           label="Full Name"
           value={values.fullName}
           required
-          onChange={(fullName) => setValues((current) => ({ ...current, fullName }))}
+          onChange={(fullName) => updateValue("fullName", fullName)}
         />
         <Field
           id="email"
@@ -151,14 +157,14 @@ export function JoinForm() {
           type="email"
           value={values.email}
           required
-          onChange={(email) => setValues((current) => ({ ...current, email }))}
+          onChange={(email) => updateValue("email", email)}
         />
         <Field
           id="program"
           label="ASU Program"
           value={values.asuProgram}
           required
-          onChange={(asuProgram) => setValues((current) => ({ ...current, asuProgram }))}
+          onChange={(asuProgram) => updateValue("asuProgram", asuProgram)}
         />
         <Field
           id="gradYear"
@@ -170,7 +176,7 @@ export function JoinForm() {
           maxLength={4}
           onChange={(gradYear) => {
             const normalized = gradYear.replace(/[^\d]/g, "").slice(0, 4);
-            setValues((current) => ({ ...current, gradYear: normalized }));
+            updateValue("gradYear", normalized);
           }}
         />
       </div>
@@ -179,7 +185,7 @@ export function JoinForm() {
         id="headline"
         label="Headline"
         value={values.headline}
-        onChange={(headline) => setValues((current) => ({ ...current, headline }))}
+        onChange={(headline) => updateValue("headline", headline)}
       />
 
       <label className="flex flex-col gap-2">
@@ -187,7 +193,10 @@ export function JoinForm() {
         <textarea
           className="min-h-28 rounded-xl border border-line/80 bg-white px-4 py-3 text-sm outline-none ring-accent transition focus:ring-2"
           value={values.bio}
-          onChange={(event) => setValues((current) => ({ ...current, bio: event.currentTarget.value }))}
+          onChange={(event) => {
+            const nextBio = event.currentTarget.value;
+            updateValue("bio", nextBio);
+          }}
         />
       </label>
 
@@ -196,19 +205,19 @@ export function JoinForm() {
           id="github"
           label="GitHub URL"
           value={values.github}
-          onChange={(github) => setValues((current) => ({ ...current, github }))}
+          onChange={(github) => updateValue("github", github)}
         />
         <Field
           id="linkedin"
           label="LinkedIn URL"
           value={values.linkedin}
-          onChange={(linkedin) => setValues((current) => ({ ...current, linkedin }))}
+          onChange={(linkedin) => updateValue("linkedin", linkedin)}
         />
         <Field
           id="site"
           label="Website URL"
           value={values.site}
-          onChange={(site) => setValues((current) => ({ ...current, site }))}
+          onChange={(site) => updateValue("site", site)}
         />
       </div>
 
@@ -242,9 +251,10 @@ export function JoinForm() {
         tabIndex={-1}
         aria-hidden="true"
         value={values.website}
-        onChange={(event) =>
-          setValues((current) => ({ ...current, website: event.currentTarget.value }))
-        }
+        onChange={(event) => {
+          const honeypotValue = event.currentTarget.value;
+          updateValue("website", honeypotValue);
+        }}
         className="hidden"
       />
 
@@ -253,7 +263,10 @@ export function JoinForm() {
           className="mt-1 h-4 w-4 rounded border-line text-accent"
           type="checkbox"
           checked={values.consent}
-          onChange={(event) => setValues((current) => ({ ...current, consent: event.currentTarget.checked }))}
+          onChange={(event) => {
+            const isChecked = event.currentTarget.checked;
+            updateValue("consent", isChecked);
+          }}
           required
         />
         I confirm this information can be publicly displayed on asu.network after moderation review.
