@@ -96,8 +96,8 @@ export default function RootLayout({
         className={`${sora.variable} ${plexSans.variable} ${plexMono.variable} lowercase antialiased`}
       >
         <div className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col">
-          <header className="sticky top-0 z-10 px-5 pt-5 sm:px-7">
-            <nav className="shell flex items-center justify-between rounded-2xl border border-line/60 px-4 py-3">
+          <header className="sticky top-0 z-10 px-4 pt-4 sm:px-6 lg:px-8 lg:pt-6 xl:px-10">
+            <nav className="shell flex items-center justify-between rounded-2xl border border-line/60 px-4 py-3 lg:px-6 lg:py-3.5">
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a href="/" className="font-display text-xl leading-none">
                 asu.network
@@ -116,8 +116,8 @@ export default function RootLayout({
             </nav>
           </header>
           <div className="flex-1">{children}</div>
-          <footer className="px-5 pb-4 sm:px-7">
-            <div className="shell rounded-2xl border border-line/60 px-4 py-2.5 text-xs text-muted">
+          <footer className="px-4 pb-4 sm:px-6 lg:px-8 lg:pb-6 xl:px-10">
+            <div className="shell rounded-2xl border border-line/60 px-4 py-2.5 text-xs text-muted lg:px-6 lg:py-3">
               check out the source code here:{" "}
               <a
                 href="https://github.com/LuaanNguyen/asu-network"

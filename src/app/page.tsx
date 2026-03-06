@@ -57,14 +57,14 @@ export default function Home() {
     <>
       <main
         id="top"
-        className="mx-auto flex min-h-[calc(100dvh-132px)] w-full max-w-none flex-col px-4 pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-6 lg:h-[calc(100dvh-132px)] lg:px-6"
+        className="mx-auto flex min-h-[calc(100dvh-132px)] w-full max-w-none flex-col px-4 pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-6 lg:h-[calc(100dvh-132px)] lg:px-8 lg:pb-8 lg:pt-8 xl:px-10"
       >
-        <header className="mb-4 shrink-0 space-y-2.5">
+        <header className="mb-4 shrink-0 space-y-2.5 lg:mb-6 lg:space-y-3">
           <h1 className="display-heading text-3xl leading-tight sm:text-5xl">
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             welcome to <a href="/">asu.network</a>
           </h1>
-          <p className="max-w-5xl text-sm text-muted sm:text-base">
+          <p className="max-w-5xl text-sm leading-relaxed text-muted sm:text-base lg:max-w-6xl">
             asu packs an unusually high density of talented engineers,
             designers, creators, and researchers. <br />
             <br />
@@ -78,7 +78,7 @@ export default function Home() {
           <button
             type="button"
             onClick={() => setFormOpen(true)}
-            className="inline-flex items-center rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-accent-ink transition hover:border-accent hover:bg-accent/10"
+            className="inline-flex items-center rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-accent-ink transition hover:border-accent hover:bg-accent/10 lg:px-5 lg:py-2.5"
           >
             want to join? fill out the form
           </button>

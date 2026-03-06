@@ -217,7 +217,7 @@ export function NetworkWorkspace({ className, people }) {
   return (
     <section
       className={cn(
-        "grid min-h-0 gap-4 lg:h-full lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-4",
+        "grid min-h-0 gap-4 lg:h-full lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-6 xl:gap-7",
         className,
       )}
     >
@@ -250,7 +250,7 @@ export function NetworkWorkspace({ className, people }) {
 
       <aside
         className={cn(
-          "min-h-0 flex-col overflow-hidden p-2 sm:p-3 lg:h-full",
+          "min-h-0 flex-col overflow-hidden p-2 sm:p-3 lg:h-full lg:p-4 xl:p-5",
           mobilePane === "graph"
             ? "hidden lg:flex"
             : "flex h-[60dvh] sm:h-[64dvh] lg:h-full",
@@ -269,19 +269,19 @@ export function NetworkWorkspace({ className, people }) {
               value={query}
               onChange={(event) => setQuery(event.currentTarget.value)}
               placeholder="search by name, program, skill..."
-              className="h-11 w-full rounded-xl border border-line bg-white pl-9 pr-3 text-sm text-foreground outline-none ring-accent transition focus:ring-2"
+              className="h-11 w-full rounded-xl border border-line bg-white pl-9 pr-3 text-sm text-foreground outline-none ring-accent transition focus:ring-2 lg:h-12"
             />
           </label>
         </header>
 
-        <div className="mt-5 hidden grid-cols-[minmax(0,2.15fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1.8fr)] gap-2 border-b border-line pb-2 font-mono text-[10px] lowercase tracking-[0.14em] text-muted md:grid">
+        <div className="mt-5 hidden grid-cols-[minmax(0,2.15fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1.8fr)] gap-2 border-b border-line pb-2 font-mono text-[10px] lowercase tracking-[0.14em] text-muted md:grid lg:mt-6 lg:pb-3">
           <p>name</p>
           <p>program</p>
           <p>site</p>
           <p>links</p>
         </div>
 
-        <ul className="mt-4 flex-1 space-y-2.5 overflow-y-auto pr-1">
+        <ul className="mt-4 flex-1 space-y-2.5 overflow-y-auto pr-1 lg:mt-5 lg:space-y-3 lg:pr-2">
           {filteredPeople.length === 0 ? (
             <li className="rounded-xl border border-dashed border-line/80 bg-surface p-4 text-sm text-muted">
               no members yet. use the join form to add the first profile.
@@ -307,13 +307,13 @@ export function NetworkWorkspace({ className, people }) {
                     }
                   }}
                   className={cn(
-                    "cursor-pointer rounded-xl border p-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                    "cursor-pointer rounded-xl border p-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:p-4",
                     selected
                       ? "border-accent bg-accent/10 shadow-[0_12px_26px_rgba(140,29,64,0.2)]"
                       : "border-line/70 bg-surface hover:border-accent/40",
                   )}
                 >
-                  <div className="grid gap-2 md:grid-cols-[minmax(0,2.15fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1.8fr)] md:items-center">
+                  <div className="grid gap-2 md:grid-cols-[minmax(0,2.15fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1.8fr)] md:items-center lg:gap-3">
                     <div className="min-w-0">
                       <div className="flex items-center gap-3">
                         <NextImage
@@ -321,7 +321,7 @@ export function NetworkWorkspace({ className, people }) {
                           alt={`${person.fullName} avatar`}
                           width={42}
                           height={42}
-                          className="h-10 w-10 rounded-full border border-line object-cover"
+                          className="h-10 w-10 rounded-full border border-line object-cover lg:h-11 lg:w-11"
                         />
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-foreground">
@@ -374,7 +374,7 @@ export function NetworkWorkspace({ className, people }) {
 
       <section
         className={cn(
-          "shell relative min-h-0 overflow-hidden rounded-2xl border border-line/70 p-3 sm:p-4 lg:h-full lg:p-5",
+          "shell relative min-h-0 overflow-hidden rounded-2xl border border-line/70 p-3 sm:p-4 lg:h-full lg:p-6 xl:p-7",
           mobilePane === "list"
             ? "hidden lg:block"
             : "block h-[56dvh] sm:h-[60dvh] lg:h-full",
@@ -469,7 +469,7 @@ export function NetworkWorkspace({ className, people }) {
         </div>
 
         {selectedPerson ? (
-          <div className="pointer-events-none absolute bottom-3 left-3 right-3 rounded-xl border border-line/70 bg-surface/90 p-3 backdrop-blur-sm">
+          <div className="pointer-events-none absolute bottom-3 left-3 right-3 rounded-xl border border-line/70 bg-surface/90 p-3 backdrop-blur-sm lg:bottom-4 lg:left-4 lg:right-4 lg:p-4">
             <p className="font-mono text-[10px] lowercase tracking-[0.14em] text-muted">
               selected
             </p>
