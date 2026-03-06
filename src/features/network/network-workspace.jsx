@@ -12,7 +12,7 @@ const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
 });
 
-const NODE_RADIUS = 12;
+const NODE_RADIUS = 15;
 const LINK_ICON_CLASS = "h-3.5 w-3.5";
 const LINK_ICON_BY_TYPE = {
   github: Github,
@@ -99,7 +99,7 @@ export function NetworkWorkspace({ className, people }) {
         chargeDistanceMax: 1300,
         linkDistance: 140,
         linkStrength: 0.2,
-        zoom: 1.5,
+        zoom: 1.1,
       };
     }
     if (nodeCount <= 12) {
@@ -109,7 +109,7 @@ export function NetworkWorkspace({ className, people }) {
         chargeDistanceMax: 1800,
         linkDistance: 170,
         linkStrength: 0.16,
-        zoom: 1.32,
+        zoom: 1.0,
       };
     }
     return {
@@ -118,7 +118,7 @@ export function NetworkWorkspace({ className, people }) {
       chargeDistanceMax: 2600,
       linkDistance: 205,
       linkStrength: 0.12,
-      zoom: 1.2,
+      zoom: 0.92,
     };
   }, [nodeCount]);
 
@@ -165,7 +165,7 @@ export function NetworkWorkspace({ className, people }) {
 
     if (!hasPlayedIntroRef.current) {
       hasPlayedIntroRef.current = true;
-      graph.zoom(0.84, 0);
+      graph.zoom(0.7, 0);
       graph.centerAt(0, 36, 0);
 
       const timer = window.setTimeout(() => {
