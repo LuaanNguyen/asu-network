@@ -12,7 +12,7 @@ const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
 });
 
-const NODE_RADIUS = 10;
+const NODE_RADIUS = 12;
 const LINK_ICON_CLASS = "h-3.5 w-3.5";
 const LINK_ICON_BY_TYPE = {
   github: Github,
@@ -57,7 +57,7 @@ export function NetworkWorkspace({ className, people }) {
   const graphData = useMemo(() => {
     const visibleIds = new Set(filteredPeople.map((person) => person.id));
     const count = Math.max(filteredPeople.length, 1);
-    const baseRadius = Math.max(320, count * 48);
+    const baseRadius = Math.min(420, Math.max(150, count * 24));
     const nodes = filteredPeople.map((person, index) => {
       const angle = (index / count) * Math.PI * 2;
       return {
@@ -90,6 +90,38 @@ export function NetworkWorkspace({ className, people }) {
     return { nodes, links };
   }, [filteredPeople]);
 
+  const nodeCount = graphData.nodes.length;
+  const graphTune = useMemo(() => {
+    if (nodeCount <= 6) {
+      return {
+        collide: NODE_RADIUS * 2.3,
+        charge: -1100,
+        chargeDistanceMax: 1300,
+        linkDistance: 140,
+        linkStrength: 0.2,
+        zoom: 1.5,
+      };
+    }
+    if (nodeCount <= 12) {
+      return {
+        collide: NODE_RADIUS * 2.5,
+        charge: -1550,
+        chargeDistanceMax: 1800,
+        linkDistance: 170,
+        linkStrength: 0.16,
+        zoom: 1.32,
+      };
+    }
+    return {
+      collide: NODE_RADIUS * 2.7,
+      charge: -2100,
+      chargeDistanceMax: 2600,
+      linkDistance: 205,
+      linkStrength: 0.12,
+      zoom: 1.2,
+    };
+  }, [nodeCount]);
+
   useEffect(() => {
     const element = graphContainerRef.current;
     if (!element) {
@@ -116,14 +148,14 @@ export function NetworkWorkspace({ className, people }) {
     if (!graph) {
       return;
     }
-    graph.d3Force("collide", forceCollide(NODE_RADIUS * 2.8).strength(1));
-    graph.d3Force("charge")?.strength?.(-2600);
-    graph.d3Force("charge")?.distanceMax?.(3600);
-    graph.d3Force("link")?.distance?.(300);
-    graph.d3Force("link")?.strength?.(0.09);
+    graph.d3Force("collide", forceCollide(graphTune.collide).strength(1));
+    graph.d3Force("charge")?.strength?.(graphTune.charge);
+    graph.d3Force("charge")?.distanceMax?.(graphTune.chargeDistanceMax);
+    graph.d3Force("link")?.distance?.(graphTune.linkDistance);
+    graph.d3Force("link")?.strength?.(graphTune.linkStrength);
     graph.d3Force("center")?.strength?.(0.02);
     graph.d3ReheatSimulation?.();
-  }, [graphData]);
+  }, [graphData, graphTune]);
 
   useEffect(() => {
     const graph = graphRef.current;
@@ -133,23 +165,23 @@ export function NetworkWorkspace({ className, people }) {
 
     if (!hasPlayedIntroRef.current) {
       hasPlayedIntroRef.current = true;
-      graph.zoom(0.78, 0);
+      graph.zoom(0.84, 0);
       graph.centerAt(0, 36, 0);
 
       const timer = window.setTimeout(() => {
         graph.centerAt(0, 0, 1400);
-        graph.zoom(1.14, 1400);
+        graph.zoom(graphTune.zoom, 1400);
       }, 110);
 
       return () => window.clearTimeout(timer);
     }
 
     const timer = window.setTimeout(() => {
-      graph.zoom(1.14, 380);
+      graph.zoom(graphTune.zoom, 380);
     }, 80);
 
     return () => window.clearTimeout(timer);
-  }, [graphData, graphSize.height, graphSize.width]);
+  }, [graphData, graphSize.height, graphSize.width, graphTune.zoom]);
 
   const selectedPerson =
     filteredPeople.find((person) => person.id === activeSelectedId) ??
