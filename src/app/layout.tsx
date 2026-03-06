@@ -19,10 +19,70 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
+const defaultSiteUrl = "https://asu.network";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? defaultSiteUrl;
+const metadataBase = (() => {
+  try {
+    return new URL(siteUrl);
+  } catch {
+    return new URL(defaultSiteUrl);
+  }
+})();
+
 export const metadata: Metadata = {
-  title: "asu.network",
+  metadataBase,
+  title: {
+    default: "asu.network",
+    template: "%s | asu.network",
+  },
   description:
-    "A talent network for ASU engineers, builders, operators, and ambitious students to discover and connect.",
+    "a one-page talent network for asu engineers, designers, creators, and researchers to discover and connect.",
+  applicationName: "asu.network",
+  alternates: {
+    canonical: "/",
+  },
+  keywords: [
+    "asu",
+    "arizona state university",
+    "student builders",
+    "engineering network",
+    "startup community",
+    "talent graph",
+  ],
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "asu.network",
+    title: "asu.network",
+    description:
+      "find the people building things at asu. discover profiles, links, and connections in one place.",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "asu.network social preview",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "asu.network",
+    description:
+      "find the people building things at asu.",
+    images: ["/twitter-image"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export default function RootLayout({
