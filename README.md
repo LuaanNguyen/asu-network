@@ -46,6 +46,8 @@ Visit `http://localhost:3000`.
 ## Planning Docs
 
 - `docs/asu-network-master-plan.md`
+- `docs/engineering-spec.md`
+- `docs/mvp-backend-spec.md`
 - `AGENTS.md`
 
 ## Current Routes
