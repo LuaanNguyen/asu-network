@@ -1,71 +1,93 @@
 # asu.network
 
-`asu.network` is a modern web application to showcase ASU talent across engineering, business, and operator communities.
+asu.network is a one-page talent network for asu builders.
+it combines a searchable people list, a physics graph, and a moderated join flow.
 
-## Stack
+## stack
 
-- Next.js App Router + TypeScript
-- Tailwind CSS v4
-- Drizzle ORM + PostgreSQL
-- Zod validation
-- Vitest + Playwright
+- next.js (app router) + typescript
+- tailwind css v4
+- drizzle orm + postgres
+- zod validation
+- vitest + playwright
 
-## Local Setup
+## local setup
 
-1. Install dependencies:
+1. install dependencies
 
 ```bash
 pnpm install
 ```
 
-2. Create env file:
+2. create env file
 
 ```bash
 cp .env.example .env.local
 ```
 
-Set these values in `.env.local`:
+3. set required env vars in `.env.local`
 
 - `DATABASE_URL`
-- `RATE_LIMIT_SALT` (used for hashed ip rate-limiting)
-- `ADMIN_TOKEN` (required for admin moderation endpoints/page)
+- `RATE_LIMIT_SALT`
+- `ADMIN_TOKEN`
+- `NEXT_PUBLIC_SITE_URL`
 
-3. Run the app:
-
-```bash
-pnpm dev
-```
-
-Visit `http://localhost:3000`.
-
-4. Optional: seed local database for API-backed people data:
+4. run migrations and optional seed
 
 ```bash
 pnpm db:migrate
 pnpm db:seed
 ```
 
-## Scripts
+5. start dev server
 
-- `pnpm dev` - start local development server
-- `pnpm lint` - run ESLint
-- `pnpm typecheck` - run TypeScript checks
-- `pnpm test` - run unit tests with coverage
-- `pnpm test:e2e` - run Playwright end-to-end tests
-- `pnpm db:generate` - generate Drizzle migrations
+```bash
+pnpm dev
+```
+
+open `http://localhost:3000`.
+
+## deploy (vercel)
+
+1. import the repo in vercel
+2. set production env vars (`DATABASE_URL`, `RATE_LIMIT_SALT`, `ADMIN_TOKEN`, `NEXT_PUBLIC_SITE_URL`)
+3. deploy `main`
+4. run production migrations:
+
+```bash
+DATABASE_URL="your-prod-db-url" pnpm db:migrate
+```
+
+## contribute
+
+1. create a branch from `main`
+2. make focused changes
+3. run checks before opening pr:
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm test:e2e
+```
+
+4. open a pr with a short summary + screenshots for ui changes
+
+## scripts
+
+- `pnpm dev` - start local dev server
+- `pnpm build` - production build
+- `pnpm lint` - eslint
+- `pnpm typecheck` - typescript checks
+- `pnpm test` - unit tests
+- `pnpm test:e2e` - e2e tests
+- `pnpm db:generate` - generate drizzle migration
 - `pnpm db:migrate` - apply migrations
-- `pnpm db:studio` - open Drizzle Studio
-- `pnpm db:seed` - seed MVP people, links, skills, and connections
+- `pnpm db:seed` - seed sample network data
+- `pnpm db:studio` - open drizzle studio
 
-## Planning Docs
+## routes
 
-- `docs/asu-network-master-plan.md`
-- `docs/engineering-spec.md`
-- `docs/mvp-backend-spec.md`
-- `AGENTS.md`
-
-## Current Routes
-
-- `/` single-screen split app (left people list, right physics graph with avatars)
-- `/people/[slug]` optional profile detail deep link
-- `/admin/submissions` admin moderation page (requires `ADMIN_TOKEN`)
+- `/` main one-screen experience
+- `/people/[slug]` profile detail
+- `/admin/submissions` admin moderation view (requires `ADMIN_TOKEN`)
