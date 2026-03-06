@@ -50,5 +50,5 @@ Visit `http://localhost:3000`.
 
 ## Current Routes
 
-- `/` single-page app (people directory + graph + join form)
+- `/` single-screen split app (left people list, right physics graph with avatars)
 - `/people/[slug]` optional profile detail deep link

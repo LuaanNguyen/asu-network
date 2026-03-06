@@ -10,6 +10,7 @@ export const personSchema = z.object({
   id: z.string().min(1),
   slug: z.string().min(1),
   fullName: z.string().min(1),
+  avatarUrl: z.string().url(),
   headline: z.string().min(1),
   bio: z.string().min(1),
   program: z.string().min(1),
@@ -28,4 +29,3 @@ export const peopleQuerySchema = z.object({
 
 export type Person = z.infer<typeof personSchema>;
 export type ProfileLink = z.infer<typeof profileLinkSchema>;
-

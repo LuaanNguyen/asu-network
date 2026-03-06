@@ -39,23 +39,9 @@ export default function RootLayout({
               <a href="#top" className="font-display text-xl leading-none">
                 asu.network
               </a>
-              <ul className="flex items-center gap-4 text-sm text-muted">
-                <li>
-                  <a href="#people" className="transition hover:text-foreground">
-                    People
-                  </a>
-                </li>
-                <li>
-                  <a href="#graph" className="transition hover:text-foreground">
-                    Graph
-                  </a>
-                </li>
-                <li>
-                  <a href="#join" className="transition hover:text-foreground">
-                    Join
-                  </a>
-                </li>
-              </ul>
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                ASU Talent Physics Network
+              </p>
             </nav>
           </header>
           <div className="flex-1">{children}</div>
