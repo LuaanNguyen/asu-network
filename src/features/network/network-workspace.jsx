@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Github, Globe, LinkIcon, Linkedin, Mail, Search } from "lucide-react";
 import { forceCollide } from "d3-force-3d";
 import NextImage from "next/image";
 import dynamic from "next/dynamic";
@@ -12,7 +12,15 @@ const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
 });
 
-const NODE_RADIUS = 20;
+const NODE_RADIUS = 14;
+const LINK_ICON_CLASS = "h-3.5 w-3.5";
+const LINK_ICON_BY_TYPE = {
+  github: Github,
+  linkedin: Linkedin,
+  email: Mail,
+  site: Globe,
+  x: LinkIcon,
+};
 
 export function NetworkWorkspace({ className, people }) {
   const [query, setQuery] = useState("");
@@ -41,11 +49,15 @@ export function NetworkWorkspace({ className, people }) {
   const activeSelectedId = filteredPeople.some((person) => person.id === selectedId)
     ? selectedId
     : filteredPeople[0]?.id ?? "";
+  const programCount = useMemo(
+    () => new Set(filteredPeople.map((person) => person.program)).size,
+    [filteredPeople],
+  );
 
   const graphData = useMemo(() => {
     const visibleIds = new Set(filteredPeople.map((person) => person.id));
     const count = Math.max(filteredPeople.length, 1);
-    const baseRadius = Math.max(280, count * 42);
+    const baseRadius = Math.max(320, count * 48);
     const nodes = filteredPeople.map((person, index) => {
       const angle = (index / count) * Math.PI * 2;
       return {
@@ -104,12 +116,12 @@ export function NetworkWorkspace({ className, people }) {
     if (!graph) {
       return;
     }
-    graph.d3Force("collide", forceCollide(NODE_RADIUS * 2.75).strength(1));
-    graph.d3Force("charge")?.strength?.(-1850);
-    graph.d3Force("charge")?.distanceMax?.(2600);
-    graph.d3Force("link")?.distance?.(330);
-    graph.d3Force("link")?.strength?.(0.18);
-    graph.d3Force("center")?.strength?.(0.025);
+    graph.d3Force("collide", forceCollide(NODE_RADIUS * 2.8).strength(1));
+    graph.d3Force("charge")?.strength?.(-2600);
+    graph.d3Force("charge")?.distanceMax?.(3600);
+    graph.d3Force("link")?.distance?.(300);
+    graph.d3Force("link")?.strength?.(0.09);
+    graph.d3Force("center")?.strength?.(0.02);
     graph.d3ReheatSimulation?.();
   }, [graphData]);
 
@@ -134,7 +146,7 @@ export function NetworkWorkspace({ className, people }) {
       <aside className="shell flex min-h-0 flex-col overflow-hidden rounded-2xl border border-line/70 p-5 sm:p-6">
         <header className="space-y-3">
           <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted">
-            {filteredPeople.length} members
+            {filteredPeople.length} members · {programCount} programs
           </p>
           <label className="relative block">
             <Search
@@ -195,6 +207,16 @@ export function NetworkWorkspace({ className, people }) {
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-foreground">{person.fullName}</p>
                         <p className="line-clamp-1 text-xs text-muted">{person.headline}</p>
+                        <div className="mt-1 flex items-center gap-1.5">
+                          {person.focusAreas.slice(0, 2).map((focus) => (
+                            <span
+                              key={`${person.id}-${focus}`}
+                              className="rounded-full border border-line/80 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-muted"
+                            >
+                              {focus}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -207,10 +229,12 @@ export function NetworkWorkspace({ className, people }) {
                         href={site.href}
                         target="_blank"
                         rel="noreferrer"
+                        title="personal site"
+                        aria-label={`${person.fullName} site`}
                         onClick={(event) => event.stopPropagation()}
-                        className="text-xs font-semibold text-accent-ink underline-offset-2 hover:underline"
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-line text-accent-ink transition hover:border-accent hover:bg-accent/10"
                       >
-                        site
+                        <Globe className={LINK_ICON_CLASS} />
                       </a>
                     ) : (
                       <span className="text-xs text-muted/70">-</span>
@@ -219,16 +243,13 @@ export function NetworkWorkspace({ className, people }) {
 
                   <div className="flex flex-wrap gap-1.5">
                     {secondaryLinks.map((link) => (
-                      <a
+                      <ProfileLinkIcon
                         key={link.href}
                         href={link.href}
-                        target="_blank"
-                        rel="noreferrer"
+                        label={`${person.fullName} ${link.type}`}
+                        type={link.type}
                         onClick={(event) => event.stopPropagation()}
-                        className="rounded-full border border-line px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted transition hover:border-accent hover:text-accent-ink"
-                      >
-                        {link.type}
-                      </a>
+                      />
                     ))}
                   </div>
                 </div>
@@ -247,10 +268,10 @@ export function NetworkWorkspace({ className, people }) {
               width={graphSize.width}
               height={graphSize.height}
               graphData={graphData}
-              warmupTicks={220}
+              warmupTicks={160}
               cooldownTicks={260}
-              d3AlphaDecay={0.009}
-              d3VelocityDecay={0.16}
+              d3AlphaDecay={0.012}
+              d3VelocityDecay={0.18}
               nodeRelSize={7}
               linkWidth={(link) => {
                 const source = getNodeId(link.source);
@@ -271,7 +292,7 @@ export function NetworkWorkspace({ className, people }) {
                 ctx.arc(node.x ?? 0, node.y ?? 0, NODE_RADIUS + 9, 0, Math.PI * 2, false);
                 ctx.fill();
               }}
-              nodeCanvasObject={(node, ctx, globalScale) => {
+              nodeCanvasObject={(node, ctx) => {
                 const person = node.person;
                 if (!person) {
                   return;
@@ -301,13 +322,6 @@ export function NetworkWorkspace({ className, people }) {
                 ctx.strokeStyle = selected ? "#8c1d40" : "#03273a";
                 ctx.lineWidth = selected ? 3 : 1.3;
                 ctx.stroke();
-
-                const fontSize = Math.max(10, 12 / globalScale);
-                ctx.font = `600 ${fontSize}px sans-serif`;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "top";
-                ctx.fillStyle = selected ? "#0f1b2a" : "#5b6672";
-                ctx.fillText(person.fullName, x, y + radius + 10);
               }}
             />
           ) : null}
@@ -336,4 +350,21 @@ function getNodeId(node) {
     }
   }
   return "";
+}
+
+function ProfileLinkIcon({ href, type, label, onClick }) {
+  const Icon = LINK_ICON_BY_TYPE[type] ?? LinkIcon;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      title={type}
+      aria-label={label}
+      onClick={onClick}
+      className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted transition hover:border-accent hover:bg-accent/10 hover:text-accent-ink"
+    >
+      <Icon className={LINK_ICON_CLASS} />
+    </a>
+  );
 }
