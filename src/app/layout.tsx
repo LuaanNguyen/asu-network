@@ -53,6 +53,19 @@ export default function RootLayout({
             </nav>
           </header>
           <div className="flex-1">{children}</div>
+          <footer className="px-5 pb-4 sm:px-7">
+            <div className="shell rounded-2xl border border-line/60 px-4 py-2.5 text-xs text-muted">
+              check out the source code here:{" "}
+              <a
+                href="https://github.com/LuaanNguyen/asu-network"
+                target="_blank"
+                rel="noreferrer"
+                className="text-accent-ink underline-offset-2 hover:underline"
+              >
+                github.com/LuaanNguyen/asu-network
+              </a>
+            </div>
+          </footer>
         </div>
       </body>
     </html>
