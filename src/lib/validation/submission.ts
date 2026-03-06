@@ -10,6 +10,13 @@ export const submissionSchema = z.object({
   linkedin: z.string().trim().url().optional().or(z.literal("")),
   email: z.string().trim().email(),
   site: z.string().trim().url().optional().or(z.literal("")),
+  avatarDataUrl: z
+    .string()
+    .trim()
+    .max(2_800_000)
+    .regex(/^data:image\/[a-zA-Z0-9.+-]+;base64,[a-zA-Z0-9+/=]+$/)
+    .optional()
+    .or(z.literal("")),
   website: z.string().trim().max(0).optional().default(""),
   consent: z.literal(true),
 });

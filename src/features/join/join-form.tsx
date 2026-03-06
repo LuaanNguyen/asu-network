@@ -1,5 +1,6 @@
 "use client";
 
+import NextImage from "next/image";
 import { useState } from "react";
 
 import { submissionSchema } from "@/lib/validation/submission";
@@ -15,8 +16,11 @@ type JoinFormValues = {
   github: string;
   linkedin: string;
   site: string;
+  avatarDataUrl: string;
   website: string;
 };
+
+const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024;
 
 const initialValues: JoinFormValues = {
   fullName: "",
@@ -28,6 +32,7 @@ const initialValues: JoinFormValues = {
   linkedin: "",
   email: "",
   site: "",
+  avatarDataUrl: "",
   website: "",
   consent: false,
 };
@@ -37,6 +42,35 @@ export function JoinForm() {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  async function onAvatarFileChange(file: File | null) {
+    if (!file) {
+      setValues((current) => ({ ...current, avatarDataUrl: "" }));
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setStatus("error");
+      setMessage("please upload an image file.");
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_SIZE_BYTES) {
+      setStatus("error");
+      setMessage("image too large. max file size is 2mb.");
+      return;
+    }
+
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      setValues((current) => ({ ...current, avatarDataUrl: dataUrl }));
+      setStatus("idle");
+      setMessage("");
+    } catch {
+      setStatus("error");
+      setMessage("could not read selected image.");
+    }
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -153,6 +187,29 @@ export function JoinForm() {
         />
       </div>
 
+      <label className="flex flex-col gap-2">
+        <span className="font-mono text-xs lowercase tracking-[0.16em] text-muted">
+          profile photo (optional, max 2mb)
+        </span>
+        <input
+          id="profilePhoto"
+          type="file"
+          accept="image/*"
+          onChange={(event) => onAvatarFileChange(event.currentTarget.files?.[0] ?? null)}
+          className="h-11 rounded-xl border border-line/80 bg-white px-3 py-2 text-sm outline-none ring-accent transition focus:ring-2"
+        />
+        {values.avatarDataUrl ? (
+          <NextImage
+            src={values.avatarDataUrl}
+            alt="selected profile preview"
+            unoptimized
+            width={56}
+            height={56}
+            className="h-14 w-14 rounded-full border border-line object-cover"
+          />
+        ) : null}
+      </label>
+
       <input
         type="text"
         name="website"
@@ -198,6 +255,21 @@ export function JoinForm() {
       ) : null}
     </form>
   );
+}
+
+function readFileAsDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+        return;
+      }
+      reject(new Error("file read failed"));
+    };
+    reader.onerror = () => reject(reader.error ?? new Error("file read failed"));
+    reader.readAsDataURL(file);
+  });
 }
 
 type FieldProps = {

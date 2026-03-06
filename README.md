@@ -24,6 +24,12 @@ pnpm install
 cp .env.example .env.local
 ```
 
+Set these values in `.env.local`:
+
+- `DATABASE_URL`
+- `RATE_LIMIT_SALT` (used for hashed ip rate-limiting)
+- `ADMIN_TOKEN` (required for admin moderation endpoints/page)
+
 3. Run the app:
 
 ```bash
@@ -62,3 +68,4 @@ pnpm db:seed
 
 - `/` single-screen split app (left people list, right physics graph with avatars)
 - `/people/[slug]` optional profile detail deep link
+- `/admin/submissions` admin moderation page (requires `ADMIN_TOKEN`)
