@@ -50,8 +50,5 @@ Visit `http://localhost:3000`.
 
 ## Current Routes
 
-- `/` home
-- `/people` searchable directory
-- `/people/[slug]` profile detail
-- `/graph` graph prototype
-- `/join` profile submission form
+- `/` single-page app (people directory + graph + join form)
+- `/people/[slug]` optional profile detail deep link

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Sora } from "next/font/google";
-import Link from "next/link";
 import "./globals.css";
 
 const sora = Sora({
@@ -37,24 +36,24 @@ export default function RootLayout({
         <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col">
           <header className="sticky top-0 z-10 px-5 pt-5 sm:px-7">
             <nav className="shell flex items-center justify-between rounded-2xl border border-line/60 px-4 py-3">
-              <Link href="/" className="font-display text-xl leading-none">
+              <a href="#top" className="font-display text-xl leading-none">
                 asu.network
-              </Link>
+              </a>
               <ul className="flex items-center gap-4 text-sm text-muted">
                 <li>
-                  <Link href="/people" className="transition hover:text-foreground">
+                  <a href="#people" className="transition hover:text-foreground">
                     People
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link href="/graph" className="transition hover:text-foreground">
+                  <a href="#graph" className="transition hover:text-foreground">
                     Graph
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link href="/join" className="transition hover:text-foreground">
+                  <a href="#join" className="transition hover:text-foreground">
                     Join
-                  </Link>
+                  </a>
                 </li>
               </ul>
             </nav>
