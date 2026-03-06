@@ -1,6 +1,6 @@
 "use client";
 
-import { Github, Globe, LinkIcon, Linkedin, Mail, Search } from "lucide-react";
+import { Github, LinkIcon, Linkedin, Mail, Search } from "lucide-react";
 import { forceCollide } from "d3-force-3d";
 import NextImage from "next/image";
 import dynamic from "next/dynamic";
@@ -12,13 +12,12 @@ const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
 });
 
-const NODE_RADIUS = 14;
+const NODE_RADIUS = 10;
 const LINK_ICON_CLASS = "h-3.5 w-3.5";
 const LINK_ICON_BY_TYPE = {
   github: Github,
   linkedin: Linkedin,
   email: Mail,
-  site: Globe,
   x: LinkIcon,
 };
 
@@ -206,17 +205,6 @@ export function NetworkWorkspace({ className, people }) {
                       />
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-foreground">{person.fullName}</p>
-                        <p className="line-clamp-1 text-xs text-muted">{person.headline}</p>
-                        <div className="mt-1 flex items-center gap-1.5">
-                          {person.focusAreas.slice(0, 2).map((focus) => (
-                            <span
-                              key={`${person.id}-${focus}`}
-                              className="rounded-full border border-line/80 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-muted"
-                            >
-                              {focus}
-                            </span>
-                          ))}
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -229,12 +217,12 @@ export function NetworkWorkspace({ className, people }) {
                         href={site.href}
                         target="_blank"
                         rel="noreferrer"
-                        title="personal site"
-                        aria-label={`${person.fullName} site`}
+                        title={site.href}
+                        aria-label={`${person.fullName} site ${site.href}`}
                         onClick={(event) => event.stopPropagation()}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-line text-accent-ink transition hover:border-accent hover:bg-accent/10"
+                        className="block truncate text-xs text-accent-ink underline-offset-2 hover:underline"
                       >
-                        <Globe className={LINK_ICON_CLASS} />
+                        {site.href}
                       </a>
                     ) : (
                       <span className="text-xs text-muted/70">-</span>
@@ -301,7 +289,7 @@ export function NetworkWorkspace({ className, people }) {
                 const x = node.x ?? 0;
                 const y = node.y ?? 0;
                 const selected = person.id === activeSelectedId;
-                const radius = selected ? NODE_RADIUS + 4 : NODE_RADIUS;
+                const radius = selected ? NODE_RADIUS + 3 : NODE_RADIUS;
                 const image = getAvatarImage(person.avatarUrl);
 
                 ctx.save();
