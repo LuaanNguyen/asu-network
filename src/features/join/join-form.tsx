@@ -8,7 +8,7 @@ import { submissionSchema } from "@/lib/validation/submission";
 type JoinFormValues = {
   fullName: string;
   asuProgram: string;
-  gradYear: number;
+  gradYear: string;
   headline: string;
   bio: string;
   email: string;
@@ -25,7 +25,7 @@ const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024;
 const initialValues: JoinFormValues = {
   fullName: "",
   asuProgram: "",
-  gradYear: new Date().getFullYear() + 1,
+  gradYear: String(new Date().getFullYear() + 1),
   headline: "",
   bio: "",
   github: "",
@@ -77,10 +77,34 @@ export function JoinForm() {
     setStatus("idle");
     setMessage("");
 
-    const parsed = submissionSchema.safeParse(values);
+    if (!values.fullName.trim()) {
+      setStatus("error");
+      setMessage("full name is required.");
+      return;
+    }
+    if (!values.email.trim()) {
+      setStatus("error");
+      setMessage("email is required.");
+      return;
+    }
+    if (!values.asuProgram.trim()) {
+      setStatus("error");
+      setMessage("asu program is required.");
+      return;
+    }
+    if (!values.gradYear.trim()) {
+      setStatus("error");
+      setMessage("grad year is required.");
+      return;
+    }
+
+    const parsed = submissionSchema.safeParse({
+      ...values,
+      gradYear: values.gradYear.trim(),
+    });
     if (!parsed.success) {
       setStatus("error");
-      setMessage(parsed.error.issues[0]?.message ?? "Please fix form errors.");
+      setMessage(parsed.error.issues[0]?.message ?? "please fix form errors.");
       return;
     }
 
@@ -101,7 +125,7 @@ export function JoinForm() {
       }
 
       setStatus("success");
-      setMessage("Thanks. Your profile request is in review.");
+      setMessage("thanks. your profile request is in review.");
       setValues(initialValues);
     } catch (error) {
       setStatus("error");
@@ -139,12 +163,15 @@ export function JoinForm() {
         <Field
           id="gradYear"
           label="Grad Year"
-          type="number"
-          value={String(values.gradYear)}
+          value={values.gradYear}
           required
-          onChange={(gradYear) =>
-            setValues((current) => ({ ...current, gradYear: Number(gradYear) || current.gradYear }))
-          }
+          inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength={4}
+          onChange={(gradYear) => {
+            const normalized = gradYear.replace(/[^\d]/g, "").slice(0, 4);
+            setValues((current) => ({ ...current, gradYear: normalized }));
+          }}
         />
       </div>
 
@@ -152,7 +179,6 @@ export function JoinForm() {
         id="headline"
         label="Headline"
         value={values.headline}
-        required
         onChange={(headline) => setValues((current) => ({ ...current, headline }))}
       />
 
@@ -162,7 +188,6 @@ export function JoinForm() {
           className="min-h-28 rounded-xl border border-line/80 bg-white px-4 py-3 text-sm outline-none ring-accent transition focus:ring-2"
           value={values.bio}
           onChange={(event) => setValues((current) => ({ ...current, bio: event.currentTarget.value }))}
-          required
         />
       </label>
 
@@ -278,18 +303,37 @@ type FieldProps = {
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
-  type?: "text" | "email" | "number";
+  type?: "text" | "email";
+  inputMode?: "none" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | "search";
+  pattern?: string;
+  maxLength?: number;
 };
 
-function Field({ id, label, value, onChange, required, type = "text" }: FieldProps) {
+function Field({
+  id,
+  label,
+  value,
+  onChange,
+  required,
+  type = "text",
+  inputMode,
+  pattern,
+  maxLength,
+}: FieldProps) {
   return (
     <label htmlFor={id} className="flex flex-col gap-2">
-      <span className="font-mono text-xs lowercase tracking-[0.16em] text-muted">{label}</span>
+      <span className="font-mono text-xs lowercase tracking-[0.16em] text-muted">
+        {label}
+        {required ? <span className="ml-1 text-accent">*</span> : null}
+      </span>
       <input
         id={id}
         type={type}
         value={value}
         required={required}
+        inputMode={inputMode}
+        pattern={pattern}
+        maxLength={maxLength}
         onChange={(event) => onChange(event.currentTarget.value)}
         className="h-11 rounded-xl border border-line/80 bg-white px-4 text-sm outline-none ring-accent transition focus:ring-2"
       />

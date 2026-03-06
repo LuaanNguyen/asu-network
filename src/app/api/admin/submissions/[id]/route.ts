@@ -133,14 +133,22 @@ export async function POST(request: Request, { params }: RouteContext) {
         `https://api.dicebear.com/9.x/personas/png?seed=${encodeURIComponent(
           parsedSubmissionPayload.fullName,
         )}`;
+      const headline = toNonEmptyString(
+        parsedSubmissionPayload.headline,
+        `${parsedSubmissionPayload.asuProgram} @ asu`,
+      );
+      const bio = toNonEmptyString(
+        parsedSubmissionPayload.bio,
+        `${parsedSubmissionPayload.fullName} is part of the asu.network builder community.`,
+      );
 
       const insertedPeople = await tx
         .insert(people)
         .values({
           slug,
           fullName: parsedSubmissionPayload.fullName,
-          headline: parsedSubmissionPayload.headline,
-          bio: parsedSubmissionPayload.bio,
+          headline,
+          bio,
           program: parsedSubmissionPayload.asuProgram,
           gradYear: parsedSubmissionPayload.gradYear,
           location: "tempe, az",
@@ -252,4 +260,9 @@ function toSlug(value: string) {
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
   return slug.length > 0 ? slug : "member";
+}
+
+function toNonEmptyString(value: string | undefined, fallback: string) {
+  const normalized = value?.trim();
+  return normalized && normalized.length > 0 ? normalized : fallback;
 }
