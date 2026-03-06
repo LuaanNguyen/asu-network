@@ -7,15 +7,11 @@ import * as schema from "@/db/schema";
 type Database = ReturnType<typeof drizzle<typeof schema>>;
 
 declare global {
-  var __asuDb__: Database | undefined;
+  var __asuDb__: Database | null | undefined;
 }
 
 function createDb() {
-  if (!env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is required to initialize the database client.");
-  }
-
-  const sql = postgres(env.DATABASE_URL, {
+  const sql = postgres(env.DATABASE_URL as string, {
     prepare: false,
     max: 5,
   });
@@ -23,8 +19,19 @@ function createDb() {
   return drizzle(sql, { schema });
 }
 
-export const db = globalThis.__asuDb__ ?? createDb();
+export function getDb() {
+  if (globalThis.__asuDb__ !== undefined) {
+    return globalThis.__asuDb__;
+  }
 
-if (env.NODE_ENV !== "production") {
-  globalThis.__asuDb__ = db;
+  if (!env.DATABASE_URL) {
+    globalThis.__asuDb__ = null;
+    return null;
+  }
+
+  const db = createDb();
+  if (env.NODE_ENV !== "production") {
+    globalThis.__asuDb__ = db;
+  }
+  return db;
 }

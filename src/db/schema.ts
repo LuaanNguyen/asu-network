@@ -32,6 +32,7 @@ export const people = pgTable(
     fullName: text("full_name").notNull(),
     headline: text("headline").notNull(),
     bio: text("bio").notNull(),
+    program: text("program").notNull(),
     gradYear: integer("grad_year"),
     location: text("location"),
     avatarUrl: text("avatar_url"),
@@ -109,6 +110,22 @@ export const personOrganizations = pgTable(
   (table) => [primaryKey({ columns: [table.personId, table.organizationId] })],
 );
 
+export const personConnections = pgTable(
+  "person_connections",
+  {
+    sourcePersonId: integer("source_person_id")
+      .notNull()
+      .references(() => people.id, { onDelete: "cascade" }),
+    targetPersonId: integer("target_person_id")
+      .notNull()
+      .references(() => people.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.sourcePersonId, table.targetPersonId] })],
+);
+
 export const submissions = pgTable("submissions", {
   id: serial("id").primaryKey(),
   payloadJson: text("payload_json").notNull(),
@@ -119,4 +136,3 @@ export const submissions = pgTable("submissions", {
     .defaultNow(),
   reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
 });
-

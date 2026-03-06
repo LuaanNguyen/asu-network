@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { samplePeople } from "@/data/sample-data";
+import { listPeople } from "@/lib/server/people-repository";
 import { peopleQuerySchema } from "@/lib/validation/person";
 
 export async function GET(request: Request) {
@@ -18,23 +18,11 @@ export async function GET(request: Request) {
     );
   }
 
-  const { q, program, limit } = parsed.data;
-  const qLower = q.toLowerCase();
-
-  const filtered = samplePeople.filter((person) => {
-    const byProgram = program === "all" || person.program === program;
-    const byQuery =
-      q.length === 0 ||
-      [person.fullName, person.headline, person.bio, person.focusAreas.join(" ")]
-        .join(" ")
-        .toLowerCase()
-        .includes(qLower);
-    return byProgram && byQuery;
-  });
+  const result = await listPeople(parsed.data);
 
   return NextResponse.json({
-    data: filtered.slice(0, limit),
-    total: filtered.length,
+    data: result.data,
+    total: result.total,
+    source: result.source,
   });
 }
-

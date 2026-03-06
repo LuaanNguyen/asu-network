@@ -6,9 +6,11 @@ import { useEffect, useState } from "react";
 import { samplePeople } from "@/data/sample-data";
 import { JoinForm } from "@/features/join/join-form";
 import { NetworkWorkspace } from "@/features/network/network-workspace";
+import type { Person } from "@/lib/validation/person";
 
 export default function Home() {
   const [formOpen, setFormOpen] = useState(false);
+  const [people, setPeople] = useState<Person[]>(samplePeople);
 
   useEffect(() => {
     if (!formOpen) {
@@ -24,6 +26,32 @@ export default function Home() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [formOpen]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadPeople() {
+      try {
+        const response = await fetch("/api/people?limit=200", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = (await response.json()) as { data?: Person[] };
+        if (Array.isArray(payload.data)) {
+          setPeople(payload.data);
+        }
+      } catch {
+        // Keep sample data fallback on network/API errors.
+      }
+    }
+
+    void loadPeople();
+    return () => controller.abort();
+  }, []);
 
   return (
     <>
@@ -48,7 +76,7 @@ export default function Home() {
             want to join? fill out the form
           </button>
         </header>
-        <NetworkWorkspace className="min-h-0 flex-1" people={samplePeople} />
+        <NetworkWorkspace className="min-h-0 flex-1" people={people} />
       </main>
 
       {formOpen ? (

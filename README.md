@@ -32,6 +32,13 @@ pnpm dev
 
 Visit `http://localhost:3000`.
 
+4. Optional: seed local database for API-backed people data:
+
+```bash
+pnpm db:migrate
+pnpm db:seed
+```
+
 ## Scripts
 
 - `pnpm dev` - start local development server
@@ -42,6 +49,7 @@ Visit `http://localhost:3000`.
 - `pnpm db:generate` - generate Drizzle migrations
 - `pnpm db:migrate` - apply migrations
 - `pnpm db:studio` - open Drizzle Studio
+- `pnpm db:seed` - seed MVP people, links, skills, and connections
 
 ## Planning Docs
 
