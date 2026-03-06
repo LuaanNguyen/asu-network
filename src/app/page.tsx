@@ -29,9 +29,9 @@ export default function Home() {
     <>
       <main
         id="top"
-        className="mx-auto flex h-[calc(100dvh-86px)] w-full max-w-none flex-col px-4 pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-6"
+        className="mx-auto flex h-[calc(100dvh-86px)] w-full max-w-none flex-col px-5 pb-5 pt-5 sm:px-8 sm:pb-8 sm:pt-7"
       >
-        <header className="mb-4 shrink-0 space-y-2">
+        <header className="mb-5 shrink-0 space-y-2.5">
           <h1 className="display-heading text-4xl leading-tight sm:text-5xl">welcome to the asu.network.</h1>
           <p className="max-w-5xl text-sm text-muted sm:text-base">
             asu packs an unusually high density of talented engineers, designers, creators, and
@@ -82,4 +82,3 @@ export default function Home() {
     </>
   );
 }
-

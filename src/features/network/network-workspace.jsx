@@ -44,7 +44,17 @@ export function NetworkWorkspace({ className, people }) {
 
   const graphData = useMemo(() => {
     const visibleIds = new Set(filteredPeople.map((person) => person.id));
-    const nodes = filteredPeople.map((person) => ({ id: person.id, person }));
+    const count = Math.max(filteredPeople.length, 1);
+    const baseRadius = Math.max(280, count * 42);
+    const nodes = filteredPeople.map((person, index) => {
+      const angle = (index / count) * Math.PI * 2;
+      return {
+        id: person.id,
+        person,
+        x: Math.cos(angle) * baseRadius,
+        y: Math.sin(angle) * baseRadius,
+      };
+    });
     const links = [];
     const seen = new Set();
 
@@ -94,12 +104,12 @@ export function NetworkWorkspace({ className, people }) {
     if (!graph) {
       return;
     }
-    graph.d3Force("collide", forceCollide(NODE_RADIUS * 2.35).strength(0.95));
-    graph.d3Force("charge")?.strength?.(-1300);
-    graph.d3Force("charge")?.distanceMax?.(1800);
-    graph.d3Force("link")?.distance?.(255);
-    graph.d3Force("link")?.strength?.(0.24);
-    graph.d3Force("center")?.strength?.(0.04);
+    graph.d3Force("collide", forceCollide(NODE_RADIUS * 2.75).strength(1));
+    graph.d3Force("charge")?.strength?.(-1850);
+    graph.d3Force("charge")?.distanceMax?.(2600);
+    graph.d3Force("link")?.distance?.(330);
+    graph.d3Force("link")?.strength?.(0.18);
+    graph.d3Force("center")?.strength?.(0.025);
     graph.d3ReheatSimulation?.();
   }, [graphData]);
 
@@ -120,8 +130,8 @@ export function NetworkWorkspace({ className, people }) {
   }
 
   return (
-    <section className={cn("grid h-full min-h-0 gap-4 lg:grid-cols-2", className)}>
-      <aside className="shell flex min-h-0 flex-col overflow-hidden rounded-2xl border border-line/70 p-4 sm:p-5">
+    <section className={cn("grid h-full min-h-0 gap-5 lg:grid-cols-2", className)}>
+      <aside className="shell flex min-h-0 flex-col overflow-hidden rounded-2xl border border-line/70 p-5 sm:p-6">
         <header className="space-y-3">
           <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted">
             {filteredPeople.length} members
@@ -140,14 +150,14 @@ export function NetworkWorkspace({ className, people }) {
           </label>
         </header>
 
-        <div className="mt-4 hidden grid-cols-[minmax(0,2.2fr)_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.8fr)] gap-3 border-b border-line pb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted md:grid">
+        <div className="mt-5 hidden grid-cols-[minmax(0,2.2fr)_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.8fr)] gap-3 border-b border-line pb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted md:grid">
           <p>name</p>
           <p>program</p>
           <p>site</p>
           <p>links</p>
         </div>
 
-        <ul className="mt-3 flex-1 space-y-2 overflow-y-auto pr-1">
+        <ul className="mt-4 flex-1 space-y-2.5 overflow-y-auto pr-1">
           {filteredPeople.map((person) => {
             const selected = person.id === activeSelectedId;
             const site = person.links.find((link) => link.type === "site");
@@ -168,7 +178,7 @@ export function NetworkWorkspace({ className, people }) {
                 className={cn(
                   "cursor-pointer rounded-xl border p-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                   selected
-                    ? "border-accent bg-accent/10 shadow-[0_10px_26px_rgba(0,185,239,0.2)]"
+                    ? "border-accent bg-accent/10 shadow-[0_12px_26px_rgba(140,29,64,0.2)]"
                     : "border-line/70 bg-surface hover:border-accent/40",
                 )}
               >
@@ -228,8 +238,8 @@ export function NetworkWorkspace({ className, people }) {
         </ul>
       </aside>
 
-      <section className="shell relative min-h-0 overflow-hidden rounded-2xl border border-line/70 p-3">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(0,185,239,0.24),transparent_38%),radial-gradient(circle_at_88%_18%,rgba(15,27,42,0.15),transparent_42%)]" />
+      <section className="shell relative min-h-0 overflow-hidden rounded-2xl border border-line/70 p-4 sm:p-5">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_14%,rgba(140,29,64,0.24),transparent_42%),radial-gradient(circle_at_84%_20%,rgba(255,198,39,0.2),transparent_46%)]" />
         <div ref={graphContainerRef} className="relative h-full min-h-[430px]">
           {graphSize.width > 0 && graphSize.height > 0 ? (
             <ForceGraph2D
@@ -237,9 +247,10 @@ export function NetworkWorkspace({ className, people }) {
               width={graphSize.width}
               height={graphSize.height}
               graphData={graphData}
-              cooldownTicks={200}
-              d3AlphaDecay={0.012}
-              d3VelocityDecay={0.2}
+              warmupTicks={220}
+              cooldownTicks={260}
+              d3AlphaDecay={0.009}
+              d3VelocityDecay={0.16}
               nodeRelSize={7}
               linkWidth={(link) => {
                 const source = getNodeId(link.source);
@@ -250,7 +261,7 @@ export function NetworkWorkspace({ className, people }) {
                 const source = getNodeId(link.source);
                 const target = getNodeId(link.target);
                 return source === activeSelectedId || target === activeSelectedId
-                  ? "rgba(0, 185, 239, 0.88)"
+                  ? "rgba(140, 29, 64, 0.92)"
                   : "rgba(15, 27, 42, 0.22)";
               }}
               onNodeClick={(node) => setSelectedId(getNodeId(node.id))}
@@ -287,7 +298,7 @@ export function NetworkWorkspace({ className, people }) {
 
                 ctx.beginPath();
                 ctx.arc(x, y, radius + 1, 0, Math.PI * 2, false);
-                ctx.strokeStyle = selected ? "#00b9ef" : "#03273a";
+                ctx.strokeStyle = selected ? "#8c1d40" : "#03273a";
                 ctx.lineWidth = selected ? 3 : 1.3;
                 ctx.stroke();
 

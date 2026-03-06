@@ -4,8 +4,8 @@
   --color-surface: #fffdfa;
   --color-surface-strong: #e9e2d4;
   --color-muted: #5b6672;
-  --color-accent: #00b9ef;
-  --color-accent-ink: #03273a;
+  --color-accent: #8c1d40;
+  --color-accent-ink: #60132b;
   --color-line: #d3c8b3;
   --font-display: var(--font-sora);
   --font-body: var(--font-plex-sans);
@@ -25,4 +25,3 @@
   --font-display: var(--font-display);
   --font-mono: var(--font-mono);
 }
-
