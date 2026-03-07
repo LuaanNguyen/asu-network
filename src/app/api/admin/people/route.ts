@@ -54,7 +54,10 @@ export async function GET(request: Request) {
       slug: people.slug,
       fullName: people.fullName,
       program: people.program,
+      gradYear: people.gradYear,
       headline: people.headline,
+      bio: people.bio,
+      avatarUrl: people.avatarUrl,
       isPublished: people.isPublished,
       createdAt: people.createdAt,
     })
@@ -81,6 +84,10 @@ export async function GET(request: Request) {
           .where(inArray(links.personId, personIds))
       : [];
   const emailByPerson = new Map<number, string>();
+  const githubByPerson = new Map<number, string>();
+  const linkedinByPerson = new Map<number, string>();
+  const siteByPerson = new Map<number, string>();
+  const xByPerson = new Map<number, string>();
   const linkCountByPerson = new Map<number, number>();
 
   for (const row of linkRows) {
@@ -89,6 +96,18 @@ export async function GET(request: Request) {
       (linkCountByPerson.get(row.personId) ?? 0) + 1,
     );
     if (row.type !== "email") {
+      if (row.type === "github" && !githubByPerson.has(row.personId)) {
+        githubByPerson.set(row.personId, row.url.trim());
+      }
+      if (row.type === "linkedin" && !linkedinByPerson.has(row.personId)) {
+        linkedinByPerson.set(row.personId, row.url.trim());
+      }
+      if (row.type === "site" && !siteByPerson.has(row.personId)) {
+        siteByPerson.set(row.personId, row.url.trim());
+      }
+      if (row.type === "x" && !xByPerson.has(row.personId)) {
+        xByPerson.set(row.personId, row.url.trim());
+      }
       continue;
     }
     if (!emailByPerson.has(row.personId)) {
@@ -105,9 +124,16 @@ export async function GET(request: Request) {
       slug: row.slug,
       fullName: row.fullName,
       program: row.program,
+      gradYear: row.gradYear,
       headline: row.headline,
+      bio: row.bio,
+      avatarUrl: row.avatarUrl ?? "",
       isPublished: row.isPublished,
       email: emailByPerson.get(row.id) ?? "",
+      github: githubByPerson.get(row.id) ?? "",
+      linkedin: linkedinByPerson.get(row.id) ?? "",
+      site: siteByPerson.get(row.id) ?? "",
+      x: xByPerson.get(row.id) ?? "",
       linkCount: linkCountByPerson.get(row.id) ?? 0,
       createdAt: row.createdAt?.toISOString() ?? null,
     })),

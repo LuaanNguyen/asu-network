@@ -1,5 +1,6 @@
 "use client";
 
+import NextImage from "next/image";
 import { useMemo, useState } from "react";
 
 type EditablePayload = {
@@ -40,8 +41,16 @@ type AdminPerson = {
   slug: string;
   fullName: string;
   program: string;
+  gradYear: string;
   headline: string;
+  bio: string;
+  avatarUrl: string;
+  avatarDataUrl: string;
   email: string;
+  github: string;
+  linkedin: string;
+  site: string;
+  x: string;
   isPublished: boolean;
   linkCount: number;
   createdAt: string | null;
@@ -66,6 +75,8 @@ const EMPTY_EDITABLE_PAYLOAD: EditablePayload = {
   avatarDataUrl: "",
 };
 
+const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024;
+
 export default function AdminSubmissionsPage() {
   const [token, setToken] = useState("");
   const [peopleQuery, setPeopleQuery] = useState("");
@@ -77,6 +88,7 @@ export default function AdminSubmissionsPage() {
   const [peopleTotal, setPeopleTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [peopleLoading, setPeopleLoading] = useState(false);
+  const [savingPersonId, setSavingPersonId] = useState<number | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -209,6 +221,125 @@ export default function AdminSubmissionsPage() {
       setMessage("person removed.");
     } catch (removeError) {
       setError(removeError instanceof Error ? removeError.message : "failed to remove person");
+    }
+  }
+
+  function updatePersonField<Key extends keyof AdminPerson>(
+    personId: number,
+    key: Key,
+    value: AdminPerson[Key],
+  ) {
+    setPeopleRows((current) =>
+      current.map((entry) =>
+        entry.id === personId ? { ...entry, [key]: value } : entry,
+      ),
+    );
+  }
+
+  async function onPersonAvatarFileChange(personId: number, file: File | null) {
+    if (!file) {
+      updatePersonField(personId, "avatarDataUrl", "");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setError("please upload an image file.");
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_SIZE_BYTES) {
+      setError("image too large. max file size is 2mb.");
+      return;
+    }
+
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      updatePersonField(personId, "avatarDataUrl", dataUrl);
+      setError("");
+      setMessage("new profile photo ready. click save.");
+    } catch {
+      setError("could not read selected image.");
+    }
+  }
+
+  async function savePerson(person: AdminPerson) {
+    if (!token.trim()) {
+      setError("enter admin token first.");
+      return;
+    }
+
+    setSavingPersonId(person.id);
+    setError("");
+    setMessage("");
+
+    try {
+      const response = await fetch(`/api/admin/people/${person.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-token": token.trim(),
+        },
+        body: JSON.stringify({
+          fullName: person.fullName,
+          asuProgram: person.program,
+          gradYear: person.gradYear,
+          headline: person.headline,
+          bio: person.bio,
+          email: person.email,
+          github: person.github,
+          linkedin: person.linkedin,
+          site: person.site,
+          x: person.x,
+          avatarDataUrl: person.avatarDataUrl,
+          avatarUrl: person.avatarUrl,
+          isPublished: person.isPublished,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as
+        | {
+            error?: string;
+            fullName?: string;
+            program?: string;
+            gradYear?: number | null;
+            headline?: string;
+            bio?: string;
+            avatarUrl?: string;
+            isPublished?: boolean;
+          }
+        | null;
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "failed to save person");
+      }
+
+      setPeopleRows((current) =>
+        current.map((entry) =>
+          entry.id === person.id
+            ? {
+                ...entry,
+                fullName: toSafeString(payload?.fullName) || entry.fullName,
+                program: toSafeString(payload?.program) || entry.program,
+                gradYear:
+                  payload?.gradYear == null
+                    ? ""
+                    : String(payload.gradYear),
+                headline: toSafeString(payload?.headline) || entry.headline,
+                bio: toSafeString(payload?.bio) || entry.bio,
+                avatarUrl: toSafeString(payload?.avatarUrl) || entry.avatarUrl,
+                isPublished:
+                  typeof payload?.isPublished === "boolean"
+                    ? payload.isPublished
+                    : entry.isPublished,
+                avatarDataUrl: "",
+              }
+            : entry,
+        ),
+      );
+      setMessage(`${person.fullName} updated.`);
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "failed to save person");
+    } finally {
+      setSavingPersonId((current) => (current === person.id ? null : current));
     }
   }
 
@@ -505,7 +636,7 @@ export default function AdminSubmissionsPage() {
           <div>
             <h2 className="display-heading text-2xl">people in db</h2>
             <p className="mt-1 text-sm text-muted">
-              view members and remove profiles.
+              edit members, replace photos, and remove profiles.
             </p>
           </div>
           <p className="text-xs text-muted">{peopleRows.length} loaded · {peopleTotal} total</p>
@@ -543,20 +674,40 @@ export default function AdminSubmissionsPage() {
             peopleRows.map((person) => (
               <article
                 key={person.id}
-                className="rounded-xl border border-line/70 bg-white p-3"
+                className="rounded-xl border border-line/70 bg-white p-4"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">{person.fullName}</p>
-                    <p className="truncate text-xs text-muted">{person.program}</p>
-                    <p className="truncate text-xs text-muted">
-                      {person.email || "(no email link)"} · {person.slug}
-                    </p>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <NextImage
+                      src={
+                        person.avatarDataUrl ||
+                        person.avatarUrl ||
+                        `https://api.dicebear.com/9.x/personas/png?seed=${encodeURIComponent(
+                          person.fullName || person.slug || "member",
+                        )}`
+                      }
+                      alt={`${person.fullName || "member"} avatar`}
+                      width={44}
+                      height={44}
+                      unoptimized
+                      className="h-11 w-11 rounded-full border border-line object-cover"
+                    />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">{person.fullName}</p>
+                      <p className="truncate text-xs text-muted">
+                        {person.slug} · id {person.id} · links {person.linkCount}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="text-xs text-muted">
-                      id: {person.id} · links: {person.linkCount}
-                    </p>
+                    <button
+                      type="button"
+                      onClick={() => savePerson(person)}
+                      disabled={savingPersonId === person.id}
+                      className="inline-flex h-8 items-center justify-center rounded-full bg-foreground px-3 text-xs font-semibold text-background transition hover:bg-accent-ink disabled:opacity-70"
+                    >
+                      {savingPersonId === person.id ? "saving..." : "save"}
+                    </button>
                     <button
                       type="button"
                       onClick={() => removePerson(person)}
@@ -566,6 +717,136 @@ export default function AdminSubmissionsPage() {
                     </button>
                   </div>
                 </div>
+
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <EditableInput
+                    label="full name"
+                    value={person.fullName}
+                    disabled={savingPersonId === person.id}
+                    onChange={(value) => updatePersonField(person.id, "fullName", value)}
+                  />
+                  <EditableInput
+                    label="email"
+                    value={person.email}
+                    disabled={savingPersonId === person.id}
+                    onChange={(value) => updatePersonField(person.id, "email", value)}
+                  />
+                  <EditableInput
+                    label="asu program"
+                    value={person.program}
+                    disabled={savingPersonId === person.id}
+                    onChange={(value) => updatePersonField(person.id, "program", value)}
+                  />
+                  <EditableInput
+                    label="grad year"
+                    value={person.gradYear}
+                    disabled={savingPersonId === person.id}
+                    inputMode="numeric"
+                    onChange={(value) =>
+                      updatePersonField(
+                        person.id,
+                        "gradYear",
+                        value.replace(/[^\d]/g, "").slice(0, 4),
+                      )
+                    }
+                  />
+                </div>
+
+                <div className="mt-3">
+                  <EditableInput
+                    label="headline"
+                    value={person.headline}
+                    disabled={savingPersonId === person.id}
+                    onChange={(value) => updatePersonField(person.id, "headline", value)}
+                  />
+                </div>
+
+                <div className="mt-3">
+                  <EditableTextArea
+                    label="bio"
+                    value={person.bio}
+                    disabled={savingPersonId === person.id}
+                    onChange={(value) => updatePersonField(person.id, "bio", value)}
+                  />
+                </div>
+
+                <div className="mt-3 grid gap-3 md:grid-cols-4">
+                  <EditableInput
+                    label="github"
+                    value={person.github}
+                    disabled={savingPersonId === person.id}
+                    onChange={(value) => updatePersonField(person.id, "github", value)}
+                  />
+                  <EditableInput
+                    label="linkedin"
+                    value={person.linkedin}
+                    disabled={savingPersonId === person.id}
+                    onChange={(value) => updatePersonField(person.id, "linkedin", value)}
+                  />
+                  <EditableInput
+                    label="site"
+                    value={person.site}
+                    disabled={savingPersonId === person.id}
+                    onChange={(value) => updatePersonField(person.id, "site", value)}
+                  />
+                  <EditableInput
+                    label="x"
+                    value={person.x}
+                    disabled={savingPersonId === person.id}
+                    onChange={(value) => updatePersonField(person.id, "x", value)}
+                  />
+                </div>
+
+                <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_170px]">
+                  <label className="flex flex-col gap-1.5">
+                    <span className="font-mono text-[10px] lowercase tracking-[0.14em] text-muted">
+                      replace photo
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={savingPersonId === person.id}
+                      onChange={(event) =>
+                        onPersonAvatarFileChange(
+                          person.id,
+                          event.currentTarget.files?.[0] ?? null,
+                        )
+                      }
+                      className="h-10 rounded-xl border border-line/80 bg-white px-2 py-2 text-xs outline-none ring-accent transition file:mr-2 file:rounded-lg file:border-0 file:bg-surface-strong/50 file:px-2 file:py-1 file:text-[11px] file:font-medium focus:ring-2 disabled:cursor-not-allowed"
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-1.5">
+                    <span className="font-mono text-[10px] lowercase tracking-[0.14em] text-muted">
+                      published
+                    </span>
+                    <select
+                      value={person.isPublished ? "yes" : "no"}
+                      disabled={savingPersonId === person.id}
+                      onChange={(event) =>
+                        updatePersonField(
+                          person.id,
+                          "isPublished",
+                          event.currentTarget.value === "yes",
+                        )
+                      }
+                      className="h-10 rounded-xl border border-line/80 bg-white px-3 text-sm outline-none ring-accent transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-surface-strong/30"
+                    >
+                      <option value="yes">yes</option>
+                      <option value="no">no</option>
+                    </select>
+                  </label>
+                </div>
+
+                {person.avatarDataUrl ? (
+                  <p className="mt-2 text-xs text-emerald-700">
+                    new photo selected. click save to apply.
+                  </p>
+                ) : null}
+                <p className="mt-2 text-xs text-muted">
+                  {person.email || "(no email link)"} ·{" "}
+                  {person.isPublished ? "published" : "hidden"}
+                </p>
               </article>
             ))
           )}
@@ -686,17 +967,44 @@ function normalizeEditablePayload(
 }
 
 function normalizeAdminPerson(entry: Partial<AdminPerson>): AdminPerson {
+  const gradYearRaw = entry.gradYear;
   return {
     id: Number(entry.id ?? 0),
     slug: toSafeString(entry.slug),
     fullName: toSafeString(entry.fullName),
     program: toSafeString(entry.program),
+    gradYear:
+      typeof gradYearRaw === "number"
+        ? String(gradYearRaw)
+        : toSafeString(gradYearRaw),
     headline: toSafeString(entry.headline),
+    bio: toSafeString(entry.bio),
+    avatarUrl: toSafeString(entry.avatarUrl),
+    avatarDataUrl: "",
     email: toSafeString(entry.email),
+    github: toSafeString(entry.github),
+    linkedin: toSafeString(entry.linkedin),
+    site: toSafeString(entry.site),
+    x: toSafeString(entry.x),
     isPublished: entry.isPublished !== false,
     linkCount: Number(entry.linkCount ?? 0),
     createdAt: typeof entry.createdAt === "string" ? entry.createdAt : null,
   };
+}
+
+function readFileAsDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+        return;
+      }
+      reject(new Error("file read failed"));
+    };
+    reader.onerror = () => reject(reader.error ?? new Error("file read failed"));
+    reader.readAsDataURL(file);
+  });
 }
 
 function toSafeString(value: unknown) {
