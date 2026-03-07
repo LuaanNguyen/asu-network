@@ -142,8 +142,11 @@ export function JoinForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-line bg-surface p-6">
-      <div className="grid gap-4 md:grid-cols-2">
+    <form
+      onSubmit={onSubmit}
+      className="space-y-5 rounded-2xl border border-line bg-surface p-4 sm:space-y-6 sm:p-5 md:p-6"
+    >
+      <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
         <Field
           id="fullName"
           label="Full Name"
@@ -191,7 +194,7 @@ export function JoinForm() {
       <label className="flex flex-col gap-2">
         <span className="font-mono text-xs lowercase tracking-[0.16em] text-muted">Bio</span>
         <textarea
-          className="min-h-28 rounded-xl border border-line/80 bg-white px-4 py-3 text-sm outline-none ring-accent transition focus:ring-2"
+          className="min-h-28 rounded-xl border border-line/80 bg-white px-3.5 py-3 text-sm leading-relaxed outline-none ring-accent transition focus:ring-2 sm:px-4"
           value={values.bio}
           onChange={(event) => {
             const nextBio = event.currentTarget.value;
@@ -200,7 +203,7 @@ export function JoinForm() {
         />
       </label>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
         <Field
           id="github"
           label="GitHub URL"
@@ -230,7 +233,7 @@ export function JoinForm() {
           type="file"
           accept="image/*"
           onChange={(event) => onAvatarFileChange(event.currentTarget.files?.[0] ?? null)}
-          className="h-11 rounded-xl border border-line/80 bg-white px-3 py-2 text-sm outline-none ring-accent transition focus:ring-2"
+          className="h-12 rounded-xl border border-line/80 bg-white px-3 py-2 text-sm outline-none ring-accent transition file:mr-3 file:rounded-lg file:border-0 file:bg-surface-strong/60 file:px-2.5 file:py-1.5 file:text-xs file:font-medium focus:ring-2 sm:h-11"
         />
         {values.avatarDataUrl ? (
           <NextImage
@@ -258,7 +261,7 @@ export function JoinForm() {
         className="hidden"
       />
 
-      <label className="flex items-start gap-3 rounded-xl bg-surface-strong/40 p-4 text-sm">
+      <label className="flex items-start gap-3 rounded-xl bg-surface-strong/40 p-3 text-sm leading-relaxed sm:p-4">
         <input
           className="mt-1 h-4 w-4 rounded border-line text-accent"
           type="checkbox"
@@ -272,25 +275,27 @@ export function JoinForm() {
         I confirm this information can be publicly displayed on asunetwork.com after moderation review.
       </label>
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-6 text-sm font-semibold text-background transition hover:bg-accent-ink disabled:cursor-not-allowed disabled:opacity-70"
-      >
-        {submitting ? "Submitting..." : "Submit Profile"}
-      </button>
-
-      {status !== "idle" ? (
-        <p
-          className={
-            status === "success"
-              ? "text-sm font-medium text-emerald-700"
-              : "text-sm font-medium text-red-700"
-          }
+      <div className="space-y-2.5 pt-1 sm:pt-0">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="inline-flex h-12 w-full items-center justify-center rounded-full bg-foreground px-6 text-sm font-semibold text-background transition hover:bg-accent-ink disabled:cursor-not-allowed disabled:opacity-70 sm:h-11 sm:w-auto"
         >
-          {message}
-        </p>
-      ) : null}
+          {submitting ? "Submitting..." : "Submit Profile"}
+        </button>
+
+        {status !== "idle" ? (
+          <p
+            className={
+              status === "success"
+                ? "text-sm font-medium text-emerald-700"
+                : "text-sm font-medium text-red-700"
+            }
+          >
+            {message}
+          </p>
+        ) : null}
+      </div>
     </form>
   );
 }
@@ -348,7 +353,7 @@ function Field({
         pattern={pattern}
         maxLength={maxLength}
         onChange={(event) => onChange(event.currentTarget.value)}
-        className="h-11 rounded-xl border border-line/80 bg-white px-4 text-sm outline-none ring-accent transition focus:ring-2"
+        className="h-12 rounded-xl border border-line/80 bg-white px-3.5 text-sm outline-none ring-accent transition focus:ring-2 sm:h-11 sm:px-4"
       />
     </label>
   );

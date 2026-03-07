@@ -91,25 +91,27 @@ export default function Home() {
           role="dialog"
           aria-modal="true"
           aria-label="Join asunetwork.com"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1b2a]/40 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-[#0f1b2a]/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
           onClick={(event) => {
             if (event.target === event.currentTarget) {
               setFormOpen(false);
             }
           }}
         >
-          <div className="shell relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-line p-4 sm:p-6">
+          <div className="shell relative h-[100dvh] w-full overflow-y-auto rounded-none border-0 p-4 pb-6 pt-5 sm:h-auto sm:max-h-[90vh] sm:max-w-4xl sm:rounded-2xl sm:border sm:p-6">
             <button
               type="button"
               onClick={() => setFormOpen(false)}
-              className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface text-muted transition hover:text-foreground"
+              className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-muted transition hover:text-foreground sm:h-9 sm:w-9"
               aria-label="Close"
             >
               <X size={16} />
             </button>
-            <div className="mb-4 pr-12">
-              <h2 className="display-heading text-3xl">join asunetwork.com</h2>
-              <p className="mt-1 text-sm text-muted">
+            <div className="mb-4 pr-12 sm:mb-5">
+              <h2 className="display-heading text-2xl leading-tight sm:text-3xl">
+                join asunetwork.com
+              </h2>
+              <p className="mt-1 text-sm leading-relaxed text-muted">
                 add your profile and links. submissions are reviewed before
                 publication.
               </p>
