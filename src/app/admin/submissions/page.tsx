@@ -513,16 +513,31 @@ export default function AdminSubmissionsPage() {
                 className="rounded-xl border border-line/70 bg-surface p-4 sm:p-5"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-lg font-semibold">
-                      {submission.payload.fullName || "(no name)"}
-                    </p>
-                    <p className="text-sm text-muted">
-                      {submission.payload.asuProgram || "(no program)"}
-                    </p>
-                    <p className="mt-1 text-xs text-muted">
-                      {submission.payload.email || submission.email}
-                    </p>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <NextImage
+                      src={
+                        submission.payload.avatarDataUrl ||
+                        `https://api.dicebear.com/9.x/personas/png?seed=${encodeURIComponent(
+                          submission.payload.fullName || submission.fullName || "member",
+                        )}`
+                      }
+                      alt={`${submission.payload.fullName || "member"} avatar`}
+                      width={44}
+                      height={44}
+                      unoptimized
+                      className="h-11 w-11 rounded-full border border-line object-cover"
+                    />
+                    <div className="min-w-0">
+                      <p className="truncate text-lg font-semibold">
+                        {submission.payload.fullName || "(no name)"}
+                      </p>
+                      <p className="truncate text-sm text-muted">
+                        {submission.payload.asuProgram || "(no program)"}
+                      </p>
+                      <p className="mt-1 truncate text-xs text-muted">
+                        {submission.payload.email || submission.email}
+                      </p>
+                    </div>
                   </div>
                   <div className="text-right text-xs text-muted">
                     <p>id: {submission.id}</p>
