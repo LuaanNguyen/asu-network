@@ -101,24 +101,25 @@ export function NetworkWorkspace({ className, people }) {
       }
     }
 
-    // If there are no persisted relationships yet, build a light
-    // visualization-only network so the graph remains connected.
-    if (links.length === 0 && filteredPeople.length > 1) {
-      const sorted = [...filteredPeople].sort((a, b) =>
-        a.fullName.localeCompare(b.fullName),
-      );
-      for (let index = 1; index < sorted.length; index += 1) {
-        const source = sorted[index - 1]?.id;
-        const target = sorted[index]?.id;
-        if (!source || !target || source === target) {
-          continue;
+    // Enforce a deeply connected star backbone:
+    // choose a stable hub node and connect it to every other visible node.
+    if (filteredPeople.length > 1) {
+      const hubId = [...filteredPeople]
+        .sort((a, b) => a.fullName.localeCompare(b.fullName))[0]?.id;
+      if (hubId) {
+        for (const person of filteredPeople) {
+          if (person.id === hubId) {
+            continue;
+          }
+          const source = hubId < person.id ? hubId : person.id;
+          const target = hubId < person.id ? person.id : hubId;
+          const key = `${source}:${target}`;
+          if (seen.has(key)) {
+            continue;
+          }
+          seen.add(key);
+          links.push({ source, target, inferred: true });
         }
-        const key = source < target ? `${source}:${target}` : `${target}:${source}`;
-        if (seen.has(key)) {
-          continue;
-        }
-        seen.add(key);
-        links.push({ source, target, inferred: true });
       }
     }
 
@@ -495,8 +496,8 @@ export function NetworkWorkspace({ className, people }) {
                 const target = getNodeId(link.target);
                 return source === activeSelectedId ||
                   target === activeSelectedId
-                  ? "rgba(140, 29, 64, 0.92)"
-                  : "rgba(15, 27, 42, 0.22)";
+                  ? "rgba(140, 29, 64, 0.8)"
+                  : "rgba(15, 27, 42, 0.16)";
               }}
               onNodeClick={(node) => setSelectedId(getNodeId(node.id))}
               nodePointerAreaPaint={(node, color, ctx) => {
