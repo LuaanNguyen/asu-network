@@ -595,7 +595,7 @@ function toBareUrl(href) {
 
   try {
     const url = new URL(trimmed);
-    const host = url.host.toLowerCase();
+    const host = url.host.toLowerCase().replace(/^www\./, "");
     const path = url.pathname === "/" ? "" : url.pathname.replace(/\/+$/g, "");
     return `${host}${path}${url.search}${url.hash}`;
   } catch {

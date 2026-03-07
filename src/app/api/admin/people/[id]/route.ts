@@ -279,7 +279,7 @@ function normalizeOptionalUrl(value: string) {
     if (url.protocol !== "http:" && url.protocol !== "https:") {
       return candidate;
     }
-    const host = url.host.toLowerCase();
+    const host = url.host.toLowerCase().replace(/^www\./, "");
     const path = url.pathname === "/" ? "" : url.pathname.replace(/\/+$/g, "");
     return `${url.protocol}//${host}${path}${url.search}${url.hash}`;
   } catch {
