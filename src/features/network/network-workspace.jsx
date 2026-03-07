@@ -28,7 +28,7 @@ const LINK_ICON_BY_TYPE = {
   x: Twitter,
 };
 
-export function NetworkWorkspace({ className, people }) {
+export function NetworkWorkspace({ className, people, header }) {
   const [query, setQuery] = useState("");
   const [mobilePane, setMobilePane] = useState("list");
   const [selectedId, setSelectedId] = useState(people[0]?.id ?? "");
@@ -312,7 +312,7 @@ export function NetworkWorkspace({ className, people }) {
   return (
     <section
       className={cn(
-        "grid min-h-0 gap-4 lg:h-full lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-6 xl:gap-7",
+        "grid min-h-0 gap-4 lg:h-full lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:gap-4 xl:gap-5",
         className,
       )}
     >
@@ -345,12 +345,13 @@ export function NetworkWorkspace({ className, people }) {
 
       <aside
         className={cn(
-          "min-h-0 flex-col overflow-hidden p-2 sm:p-3 lg:h-full lg:p-4 xl:p-5",
+          "min-h-0 flex-col overflow-hidden p-2 sm:p-3 lg:h-full lg:p-0 xl:p-0",
           mobilePane === "graph"
             ? "hidden lg:flex"
             : "flex h-[60dvh] sm:h-[64dvh] lg:h-full",
         )}
       >
+        {header}
         <header className="space-y-3">
           <p className="font-mono text-xs lowercase tracking-[0.16em] text-muted">
             {filteredPeople.length} members · {programCount} programs
@@ -376,7 +377,7 @@ export function NetworkWorkspace({ className, people }) {
           <p>links</p>
         </div>
 
-        <ul className="mt-4 flex-1 space-y-2.5 overflow-y-auto pr-1 lg:mt-5 lg:space-y-3 lg:pr-2">
+        <ul className="mt-3 flex-1 space-y-1.5 overflow-y-auto pr-1 lg:mt-3 lg:space-y-1.5 lg:pr-2">
           {filteredPeople.length === 0 ? (
             <li className="rounded-xl border border-dashed border-line/80 bg-surface p-4 text-sm text-muted">
               no members yet. use the join form to add the first profile.
@@ -402,7 +403,7 @@ export function NetworkWorkspace({ className, people }) {
                     }
                   }}
                   className={cn(
-                    "cursor-pointer rounded-xl border p-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:p-4",
+                    "cursor-pointer rounded-lg border p-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:p-2.5",
                     selected
                       ? "border-accent/45 bg-[linear-gradient(132deg,rgba(140,29,64,0.07),rgba(255,198,39,0.1))] shadow-[0_10px_24px_rgba(140,29,64,0.1)]"
                       : "border-line/70 bg-surface hover:border-accent/40",
@@ -414,9 +415,9 @@ export function NetworkWorkspace({ className, people }) {
                         <NextImage
                           src={person.avatarUrl}
                           alt={`${person.fullName} avatar`}
-                          width={42}
-                          height={42}
-                          className="h-10 w-10 rounded-full border border-line object-cover lg:h-11 lg:w-11"
+                          width={36}
+                          height={36}
+                          className="h-8 w-8 rounded-full border border-line object-cover lg:h-9 lg:w-9"
                         />
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-foreground">

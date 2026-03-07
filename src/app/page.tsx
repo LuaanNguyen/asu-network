@@ -57,33 +57,55 @@ export default function Home() {
     <>
       <main
         id="top"
-        className="mx-auto flex min-h-[calc(100dvh-132px)] w-full max-w-none flex-col px-4 pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-6 lg:h-[calc(100dvh-132px)] lg:px-8 lg:pb-8 lg:pt-8 xl:px-10"
+        className="mx-auto flex min-h-[calc(100dvh-132px)] w-full max-w-none flex-col px-4 pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-6 lg:h-[calc(100dvh-80px)] lg:px-6 lg:pb-2 lg:pt-3 xl:px-8"
       >
-        <header className="mb-4 shrink-0 space-y-2.5 lg:mb-6 lg:space-y-3">
-          <h1 className="display-heading text-3xl leading-tight sm:text-5xl">
+        {/* Mobile-only header — shown above workspace on small screens */}
+        <div className="mb-4 shrink-0 space-y-2.5 lg:hidden">
+          <h1 className="display-heading text-3xl leading-tight sm:text-5xl mb-2">
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-            welcome to <a href="/">asunetwork.com</a>
+            <a href="/">asunetwork.com</a>
           </h1>
-          <p className="max-w-5xl text-sm leading-relaxed text-muted sm:text-base lg:max-w-6xl">
-            asu packs an unusually high density of talented engineers,
-            designers, creators, and researchers. <br />
-            <br />
-            this is the place to find the people doing things: some are already
-            shipping at a high level, others are just getting started, but the
-            common thread is real work and real momentum. a directory of the
-            people who actually make this place special.
-            <br />
-            <br />
+          <p className="max-w-5xl text-sm leading-relaxed text-muted sm:text-base">
+            our school is home to some of the most talented engineers, builders,
+            makers, artists, designers, writers, and everything in between. this
+            is a place to find other cool people who also go to asu, a directory
+            of the people who actually make this place special.
           </p>
           <button
             type="button"
             onClick={() => setFormOpen(true)}
-            className="inline-flex items-center rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-accent-ink transition hover:border-accent hover:bg-accent/10 lg:px-5 lg:py-2.5"
+            className="inline-flex items-center rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-accent-ink transition hover:border-accent hover:bg-accent/10"
           >
             want to join? fill out the form
           </button>
-        </header>
-        <NetworkWorkspace className="min-h-0 flex-1" people={people} />
+        </div>
+
+        <NetworkWorkspace
+          className="min-h-0 flex-1"
+          people={people}
+          header={
+            <div className="mb-4 hidden space-y-1.5 lg:block">
+              <h1 className="display-heading text-3xl leading-tight">
+                {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+                welcome to <a href="/">asunetwork.com</a>
+              </h1>
+              <p className="text-sm leading-relaxed text-muted">
+                our school is home to some of the most talented engineers,
+                builders, makers, artists, designers, writers, and everything in
+                between. this is a place to find other cool people who also go
+                to asu, a directory of the people who actually make this place
+                special.
+              </p>
+              <button
+                type="button"
+                onClick={() => setFormOpen(true)}
+                className="inline-flex items-center rounded-full border border-line bg-surface px-4 py-1.5 text-xs font-semibold text-accent-ink transition hover:border-accent hover:bg-accent/10"
+              >
+                want to join? fill out the form
+              </button>
+            </div>
+          }
+        />
       </main>
 
       {formOpen ? (

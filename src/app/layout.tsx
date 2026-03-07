@@ -145,8 +145,8 @@ export default function RootLayout({
       >
         <div className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col">
           <div className="flex-1">{children}</div>
-          <footer className="px-4 pb-4 sm:px-6 lg:px-8 lg:pb-6 xl:px-10">
-            <div className="shell flex flex-col gap-1.5 rounded-2xl border border-line/60 px-4 py-2.5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between lg:px-6 lg:py-3">
+          <footer className="px-4 pb-4 sm:px-6 lg:px-6 lg:pb-2 xl:px-8">
+            <div className="shell flex flex-col gap-1.5 rounded-2xl border border-line/60 px-4 py-2.5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between lg:px-5 lg:py-2">
               <p>
                 check out the source code here:{" "}
                 <a
