@@ -33,7 +33,7 @@ const metadataBase = (() => {
 export const metadata: Metadata = {
   metadataBase,
   title: {
-    default: "asunetwork.com — the network for people who build",
+    default: "asunetwork.com",
     template: "%s | asunetwork.com",
   },
   description:
