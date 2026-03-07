@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Check,
   Github,
   LinkIcon,
   Linkedin,
@@ -610,7 +611,46 @@ function toBareUrl(href) {
 }
 
 function ProfileLinkIcon({ href, type, label, onClick }) {
-  const Icon = LINK_ICON_BY_TYPE[type] ?? LinkIcon;
+  const [copied, setCopied] = useState(false);
+  const Icon = copied ? Check : LINK_ICON_BY_TYPE[type] ?? LinkIcon;
+
+  const handleEmailCopy = async (event) => {
+    if (onClick) {
+      onClick(event);
+    }
+    event.preventDefault();
+
+    const email = extractEmailAddress(href);
+    if (!email) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(email);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1400);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  if (type === "email") {
+    return (
+      <button
+        type="button"
+        title={copied ? "email copied" : "copy email"}
+        aria-label={copied ? `${label} copied` : `copy ${label}`}
+        onClick={handleEmailCopy}
+        className={cn(
+          "inline-flex h-7 w-7 items-center justify-center rounded-full border text-muted transition hover:border-accent hover:bg-accent/10 hover:text-accent-ink",
+          copied ? "border-accent/60 bg-accent/15 text-accent-ink" : "border-line",
+        )}
+      >
+        <Icon className={LINK_ICON_CLASS} />
+      </button>
+    );
+  }
+
   return (
     <a
       href={href}
@@ -624,4 +664,22 @@ function ProfileLinkIcon({ href, type, label, onClick }) {
       <Icon className={LINK_ICON_CLASS} />
     </a>
   );
+}
+
+function extractEmailAddress(href) {
+  const trimmed = href.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  if (/^mailto:/i.test(trimmed)) {
+    const rawEmail = trimmed.replace(/^mailto:/i, "").split("?")[0] ?? "";
+    try {
+      return decodeURIComponent(rawEmail).trim();
+    } catch {
+      return rawEmail.trim();
+    }
+  }
+
+  return trimmed;
 }
