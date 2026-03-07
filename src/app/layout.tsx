@@ -69,7 +69,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: "/opengraph-image",
+        url: "/asu_network.png",
         width: 1536,
         height: 1024,
         alt: "asu.network — the network for people who build. A landing page showing a searchable talent directory for ASU builders.",
@@ -83,7 +83,7 @@ export const metadata: Metadata = {
       "discover ASU's top engineers, designers, creators, and researchers. a searchable talent directory for Arizona State University.",
     images: [
       {
-        url: "/twitter-image",
+        url: "/asu_network.png",
         alt: "asu.network — the network for people who build",
       },
     ],
