@@ -403,7 +403,7 @@ export function NetworkWorkspace({ className, people }) {
                   className={cn(
                     "cursor-pointer rounded-xl border p-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:p-4",
                     selected
-                      ? "border-accent bg-accent/10 shadow-[0_12px_26px_rgba(140,29,64,0.2)]"
+                      ? "border-accent/45 bg-[linear-gradient(132deg,rgba(140,29,64,0.07),rgba(255,198,39,0.1))] shadow-[0_10px_24px_rgba(140,29,64,0.1)]"
                       : "border-line/70 bg-surface hover:border-accent/40",
                   )}
                 >
@@ -500,8 +500,8 @@ export function NetworkWorkspace({ className, people }) {
                 const target = getNodeId(link.target);
                 return source === activeSelectedId ||
                   target === activeSelectedId
-                  ? "rgba(140, 29, 64, 0.8)"
-                  : "rgba(15, 27, 42, 0.16)";
+                  ? "rgba(140, 29, 64, 0.48)"
+                  : "rgba(15, 27, 42, 0.11)";
               }}
               onNodeClick={(node) => setSelectedId(getNodeId(node.id))}
               nodePointerAreaPaint={(node, color, ctx) => {
