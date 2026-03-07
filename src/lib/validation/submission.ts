@@ -11,6 +11,7 @@ export const submissionSchema = z.object({
   bio: z.string().trim().max(1400).optional().or(z.literal("")),
   github: z.string().trim().url().optional().or(z.literal("")),
   linkedin: z.string().trim().url().optional().or(z.literal("")),
+  x: z.string().trim().url().optional().or(z.literal("")),
   email: z.string().trim().email(),
   site: z.string().trim().url().optional().or(z.literal("")),
   avatarDataUrl: z

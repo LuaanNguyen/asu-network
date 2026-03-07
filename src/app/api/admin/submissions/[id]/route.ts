@@ -196,6 +196,14 @@ export async function POST(request: Request, { params }: RouteContext) {
               isPublic: true,
             }
           : null,
+        approvedPayload.x
+          ? {
+              personId: person.id,
+              type: "x" as const,
+              url: approvedPayload.x,
+              isPublic: true,
+            }
+          : null,
         approvedPayload.site
           ? {
               personId: person.id,
@@ -298,6 +306,7 @@ function buildApprovedPayload(
     linkedin: normalizeOptionalUrl(
       pickString(override, "linkedin", base.linkedin ?? ""),
     ),
+    x: normalizeOptionalUrl(pickString(override, "x", base.x ?? "")),
     email: pickString(override, "email", base.email).trim().toLowerCase(),
     site: normalizeOptionalUrl(pickString(override, "site", base.site ?? "")),
     avatarDataUrl: pickString(

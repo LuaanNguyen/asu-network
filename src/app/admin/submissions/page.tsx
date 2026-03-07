@@ -12,6 +12,7 @@ type EditablePayload = {
   email: string;
   github: string;
   linkedin: string;
+  x: string;
   site: string;
   avatarDataUrl: string;
 };
@@ -71,6 +72,7 @@ const EMPTY_EDITABLE_PAYLOAD: EditablePayload = {
   email: "",
   github: "",
   linkedin: "",
+  x: "",
   site: "",
   avatarDataUrl: "",
 };
@@ -597,7 +599,7 @@ export default function AdminSubmissionsPage() {
                   />
                 </div>
 
-                <div className="mt-3 grid gap-3 md:grid-cols-3">
+                <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                   <EditableInput
                     label="github"
                     value={submission.payload.github}
@@ -620,6 +622,14 @@ export default function AdminSubmissionsPage() {
                     disabled={locked}
                     onChange={(value) =>
                       updatePayloadField(submission.id, "site", value)
+                    }
+                  />
+                  <EditableInput
+                    label="x"
+                    value={submission.payload.x}
+                    disabled={locked}
+                    onChange={(value) =>
+                      updatePayloadField(submission.id, "x", value)
                     }
                   />
                 </div>
@@ -978,6 +988,7 @@ function normalizeEditablePayload(
     email: toSafeString(payload?.email),
     github: toSafeString(payload?.github),
     linkedin: toSafeString(payload?.linkedin),
+    x: toSafeString(payload?.x),
     site: toSafeString(payload?.site),
     avatarDataUrl: toSafeString(payload?.avatarDataUrl),
   };

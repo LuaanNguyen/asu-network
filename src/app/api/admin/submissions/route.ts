@@ -69,6 +69,7 @@ export async function GET(request: Request) {
       email: payload?.email ?? row.email ?? "",
       github: payload?.github ?? "",
       linkedin: payload?.linkedin ?? "",
+      x: payload?.x ?? "",
       site: payload?.site ?? "",
       avatarDataUrl: payload?.avatarDataUrl ?? "",
     };

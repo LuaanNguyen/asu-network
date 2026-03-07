@@ -15,6 +15,7 @@ type JoinFormValues = {
   consent: boolean;
   github: string;
   linkedin: string;
+  x: string;
   site: string;
   avatarDataUrl: string;
   website: string;
@@ -47,6 +48,7 @@ const initialValues: JoinFormValues = {
   bio: "",
   github: "",
   linkedin: "",
+  x: "",
   email: "",
   site: "",
   avatarDataUrl: "",
@@ -220,7 +222,7 @@ export function JoinForm() {
         />
       </label>
 
-      <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Field
           id="github"
           label="GitHub URL"
@@ -232,6 +234,12 @@ export function JoinForm() {
           label="LinkedIn URL"
           value={values.linkedin}
           onChange={(linkedin) => updateValue("linkedin", linkedin)}
+        />
+        <Field
+          id="x"
+          label="X URL"
+          value={values.x}
+          onChange={(x) => updateValue("x", x)}
         />
         <Field
           id="site"
