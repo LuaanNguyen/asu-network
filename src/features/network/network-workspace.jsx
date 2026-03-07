@@ -19,7 +19,6 @@ const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
 });
 
-const NODE_RADIUS = 20;
 const LINK_ICON_CLASS = "h-3.5 w-3.5";
 const LINK_ICON_BY_TYPE = {
   github: Github,
@@ -126,13 +125,36 @@ export function NetworkWorkspace({ className, people }) {
     return { nodes, links };
   }, [filteredPeople]);
 
+  const nodeRadius = useMemo(() => {
+    const width =
+      graphSize.width > 0
+        ? graphSize.width
+        : typeof window !== "undefined"
+          ? window.innerWidth
+          : 1280;
+
+    if (width >= 1500) {
+      return 20;
+    }
+    if (width >= 1200) {
+      return 18;
+    }
+    if (width >= 900) {
+      return 17;
+    }
+    if (width >= 700) {
+      return 15;
+    }
+    return 13;
+  }, [graphSize.width]);
+
   const nodeCount = graphData.nodes.length;
   const hasGraphLinks = graphData.links.length > 0;
   const graphTune = useMemo(() => {
     if (!hasGraphLinks) {
       if (nodeCount <= 6) {
         return {
-          collide: NODE_RADIUS * 2.7,
+          collide: nodeRadius * 2.7,
           charge: -340,
           chargeDistanceMax: 760,
           linkDistance: 160,
@@ -144,7 +166,7 @@ export function NetworkWorkspace({ className, people }) {
       }
       if (nodeCount <= 12) {
         return {
-          collide: NODE_RADIUS * 2.9,
+          collide: nodeRadius * 2.9,
           charge: -460,
           chargeDistanceMax: 980,
           linkDistance: 190,
@@ -155,7 +177,7 @@ export function NetworkWorkspace({ className, people }) {
         };
       }
       return {
-        collide: NODE_RADIUS * 3.1,
+        collide: nodeRadius * 3.1,
         charge: -580,
         chargeDistanceMax: 1200,
         linkDistance: 220,
@@ -168,7 +190,7 @@ export function NetworkWorkspace({ className, people }) {
 
     if (nodeCount <= 6) {
       return {
-        collide: NODE_RADIUS * 2.8,
+        collide: nodeRadius * 2.8,
         charge: -1800,
         chargeDistanceMax: 1800,
         linkDistance: 180,
@@ -180,7 +202,7 @@ export function NetworkWorkspace({ className, people }) {
     }
     if (nodeCount <= 12) {
       return {
-        collide: NODE_RADIUS * 3.0,
+        collide: nodeRadius * 3.0,
         charge: -2400,
         chargeDistanceMax: 2400,
         linkDistance: 220,
@@ -191,7 +213,7 @@ export function NetworkWorkspace({ className, people }) {
       };
     }
     return {
-      collide: NODE_RADIUS * 3.2,
+      collide: nodeRadius * 3.2,
       charge: -3200,
       chargeDistanceMax: 3500,
       linkDistance: 280,
@@ -200,7 +222,7 @@ export function NetworkWorkspace({ className, people }) {
       centerStrength: 0.045,
       axisStrength: 0.02,
     };
-  }, [hasGraphLinks, nodeCount]);
+  }, [hasGraphLinks, nodeCount, nodeRadius]);
 
   useEffect(() => {
     const element = graphContainerRef.current;
@@ -459,7 +481,7 @@ export function NetworkWorkspace({ className, people }) {
               cooldownTicks={260}
               d3AlphaDecay={0.012}
               d3VelocityDecay={0.18}
-              nodeRelSize={7}
+              nodeRelSize={Math.max(5, Math.round(nodeRadius * 0.45))}
               linkWidth={(link) => {
                 const source = getNodeId(link.source);
                 const target = getNodeId(link.target);
@@ -483,7 +505,7 @@ export function NetworkWorkspace({ className, people }) {
                 ctx.arc(
                   node.x ?? 0,
                   node.y ?? 0,
-                  NODE_RADIUS + 9,
+                  nodeRadius + 8,
                   0,
                   Math.PI * 2,
                   false,
@@ -499,7 +521,7 @@ export function NetworkWorkspace({ className, people }) {
                 const x = node.x ?? 0;
                 const y = node.y ?? 0;
                 const selected = person.id === activeSelectedId;
-                const radius = selected ? NODE_RADIUS + 3 : NODE_RADIUS;
+                const radius = selected ? nodeRadius + 2 : nodeRadius;
                 const image = getAvatarImage(person.avatarUrl);
 
                 ctx.save();
