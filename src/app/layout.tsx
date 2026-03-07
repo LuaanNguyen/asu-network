@@ -20,7 +20,7 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
-const defaultSiteUrl = "https://asu.network";
+const defaultSiteUrl = "https://asunetwork.com";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? defaultSiteUrl;
 const metadataBase = (() => {
   try {
