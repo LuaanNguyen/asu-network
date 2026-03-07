@@ -144,37 +144,31 @@ export default function RootLayout({
         className={`${sora.variable} ${plexSans.variable} ${plexMono.variable} lowercase antialiased`}
       >
         <div className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col">
-          <header className="sticky top-0 z-10 px-4 pt-4 sm:px-6 lg:px-8 lg:pt-6 xl:px-10">
-            <nav className="shell flex items-center justify-between rounded-2xl border border-line/60 px-4 py-3 lg:px-6 lg:py-3.5">
-              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-              <a href="/" className="font-display text-xl leading-none">
-                asunetwork.com
-              </a>
-              <p className="font-mono text-[11px] tracking-[0.16em] text-muted max-sm:hidden">
+          <div className="flex-1">{children}</div>
+          <footer className="px-4 pb-4 sm:px-6 lg:px-8 lg:pb-6 xl:px-10">
+            <div className="shell flex flex-col gap-1.5 rounded-2xl border border-line/60 px-4 py-2.5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between lg:px-6 lg:py-3">
+              <p>
+                check out the source code here:{" "}
+                <a
+                  href="https://github.com/LuaanNguyen/asu-network"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-accent-ink underline-offset-2 hover:underline"
+                >
+                  github.com/LuaanNguyen/asu-network
+                </a>
+              </p>
+              <p className="sm:text-right">
                 inspired by{" "}
                 <a
                   href="https://uwaterloo.network"
                   target="_blank"
                   rel="noreferrer"
-                  className="underline-offset-2 hover:underline "
+                  className="underline-offset-2 hover:underline"
                 >
                   uwaterloo.network
                 </a>
               </p>
-            </nav>
-          </header>
-          <div className="flex-1">{children}</div>
-          <footer className="px-4 pb-4 sm:px-6 lg:px-8 lg:pb-6 xl:px-10">
-            <div className="shell rounded-2xl border border-line/60 px-4 py-2.5 text-xs text-muted lg:px-6 lg:py-3">
-              check out the source code here:{" "}
-              <a
-                href="https://github.com/LuaanNguyen/asu-network"
-                target="_blank"
-                rel="noreferrer"
-                className="text-accent-ink underline-offset-2 hover:underline"
-              >
-                github.com/LuaanNguyen/asu-network
-              </a>
             </div>
           </footer>
         </div>
