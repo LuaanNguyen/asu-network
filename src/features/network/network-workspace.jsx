@@ -140,18 +140,18 @@ export function NetworkWorkspace({ className, people }) {
           : 1280;
 
     if (width >= 1500) {
-      return 20;
+      return 21;
     }
     if (width >= 1200) {
-      return 18;
+      return 19;
     }
     if (width >= 900) {
-      return 17;
+      return 18;
     }
     if (width >= 700) {
-      return 15;
+      return 16;
     }
-    return 13;
+    return 14;
   }, [graphSize.width]);
 
   const nodeCount = graphData.nodes.length;
