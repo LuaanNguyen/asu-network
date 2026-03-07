@@ -537,13 +537,7 @@ export function NetworkWorkspace({ className, people, header }) {
                 ctx.closePath();
                 ctx.clip();
                 if (image) {
-                  ctx.drawImage(
-                    image,
-                    x - radius,
-                    y - radius,
-                    radius * 2,
-                    radius * 2,
-                  );
+                  drawAvatarCover(ctx, image, x, y, radius);
                 } else {
                   ctx.fillStyle = "#e9e2d4";
                   ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
@@ -683,4 +677,33 @@ function extractEmailAddress(href) {
   }
 
   return trimmed;
+}
+
+function drawAvatarCover(ctx, image, centerX, centerY, radius) {
+  const sourceWidth = image.naturalWidth || image.width;
+  const sourceHeight = image.naturalHeight || image.height;
+  const diameter = radius * 2;
+
+  if (!sourceWidth || !sourceHeight) {
+    ctx.drawImage(image, centerX - radius, centerY - radius, diameter, diameter);
+    return;
+  }
+
+  const sourceSize = Math.min(sourceWidth, sourceHeight);
+  const sourceX = (sourceWidth - sourceSize) / 2;
+  const sourceY = (sourceHeight - sourceSize) / 2;
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(
+    image,
+    sourceX,
+    sourceY,
+    sourceSize,
+    sourceSize,
+    centerX - radius,
+    centerY - radius,
+    diameter,
+    diameter,
+  );
 }
