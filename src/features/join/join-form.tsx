@@ -21,6 +21,23 @@ type JoinFormValues = {
 };
 
 const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024;
+const SUPPORTED_IMAGE_MIME_TYPES = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+]);
+const SUPPORTED_IMAGE_EXTENSIONS = [
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+  ".gif",
+  ".avif",
+];
+const IMAGE_INPUT_ACCEPT = "image/png,image/jpeg,image/webp,image/gif,image/avif";
 
 const initialValues: JoinFormValues = {
   fullName: "",
@@ -55,9 +72,9 @@ export function JoinForm() {
       return;
     }
 
-    if (!file.type.startsWith("image/")) {
+    if (!isSupportedImageFile(file)) {
       setStatus("error");
-      setMessage("please upload an image file.");
+      setMessage("unsupported image format. use png, jpg, webp, gif, or avif.");
       return;
     }
 
@@ -231,7 +248,7 @@ export function JoinForm() {
         <input
           id="profilePhoto"
           type="file"
-          accept="image/*"
+          accept={IMAGE_INPUT_ACCEPT}
           onChange={(event) => onAvatarFileChange(event.currentTarget.files?.[0] ?? null)}
           className="h-12 rounded-xl border border-line/80 bg-white px-3 py-2 text-sm outline-none ring-accent transition file:mr-3 file:rounded-lg file:border-0 file:bg-surface-strong/60 file:px-2.5 file:py-1.5 file:text-xs file:font-medium focus:ring-2 sm:h-11"
         />
@@ -313,6 +330,16 @@ function readFileAsDataUrl(file: File) {
     reader.onerror = () => reject(reader.error ?? new Error("file read failed"));
     reader.readAsDataURL(file);
   });
+}
+
+function isSupportedImageFile(file: File) {
+  const mime = file.type.trim().toLowerCase();
+  if (mime.length > 0) {
+    return SUPPORTED_IMAGE_MIME_TYPES.has(mime);
+  }
+
+  const name = file.name.toLowerCase();
+  return SUPPORTED_IMAGE_EXTENSIONS.some((extension) => name.endsWith(extension));
 }
 
 type FieldProps = {

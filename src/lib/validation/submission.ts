@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+const SUPPORTED_DATA_IMAGE_PATTERN =
+  /^data:image\/(?:png|jpe?g|webp|gif|avif);base64,[a-zA-Z0-9+/=]+$/i;
+
 export const submissionSchema = z.object({
   fullName: z.string().trim().min(2).max(120),
   asuProgram: z.string().trim().min(2).max(120),
@@ -14,7 +17,10 @@ export const submissionSchema = z.object({
     .string()
     .trim()
     .max(2_800_000)
-    .regex(/^data:image\/[a-zA-Z0-9.+-]+;base64,[a-zA-Z0-9+/=]+$/)
+    .regex(
+      SUPPORTED_DATA_IMAGE_PATTERN,
+      "unsupported image format. use png, jpg, webp, gif, or avif.",
+    )
     .optional()
     .or(z.literal("")),
   website: z.string().trim().max(0).optional().default(""),

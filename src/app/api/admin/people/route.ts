@@ -6,6 +6,9 @@ import { getDb } from "@/db/client";
 import { links, people } from "@/db/schema";
 import { requireAdminToken } from "@/lib/server/admin-auth";
 
+const SUPPORTED_DATA_IMAGE_PATTERN =
+  /^data:image\/(?:png|jpe?g|webp|gif|avif);base64,[a-zA-Z0-9+/=]+$/i;
+
 const adminPeopleQuerySchema = z.object({
   q: z.string().trim().max(120).default(""),
   limit: z.coerce.number().int().min(1).max(300).default(200),
@@ -127,7 +130,7 @@ export async function GET(request: Request) {
       gradYear: row.gradYear,
       headline: row.headline,
       bio: row.bio,
-      avatarUrl: row.avatarUrl ?? "",
+      avatarUrl: toSupportedAvatarUrl(row.avatarUrl ?? "", row.fullName),
       isPublished: row.isPublished,
       email: emailByPerson.get(row.id) ?? "",
       github: githubByPerson.get(row.id) ?? "",
@@ -139,4 +142,28 @@ export async function GET(request: Request) {
     })),
     total: Number(countRows[0]?.count ?? personRows.length),
   });
+}
+
+function toSupportedAvatarUrl(candidate: string, fullName: string) {
+  const fallback = `https://api.dicebear.com/9.x/personas/png?seed=${encodeURIComponent(
+    fullName.trim() || "member",
+  )}`;
+  const trimmed = candidate.trim();
+  if (!trimmed) {
+    return fallback;
+  }
+  if (/^data:image\//i.test(trimmed)) {
+    return SUPPORTED_DATA_IMAGE_PATTERN.test(trimmed) ? trimmed : fallback;
+  }
+
+  try {
+    const url = new URL(trimmed);
+    if (url.protocol === "http:" || url.protocol === "https:") {
+      return trimmed;
+    }
+  } catch {
+    return fallback;
+  }
+
+  return fallback;
 }

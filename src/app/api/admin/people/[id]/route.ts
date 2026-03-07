@@ -12,6 +12,9 @@ type RouteContext = {
   }>;
 };
 
+const SUPPORTED_DATA_IMAGE_PATTERN =
+  /^data:image\/(?:png|jpe?g|webp|gif|avif);base64,[a-zA-Z0-9+/=]+$/i;
+
 const adminPersonUpdateSchema = z.object({
   fullName: z.string().trim().min(2).max(120),
   asuProgram: z.string().trim().min(2).max(120),
@@ -33,7 +36,10 @@ const adminPersonUpdateSchema = z.object({
     .string()
     .trim()
     .max(2_800_000)
-    .regex(/^data:image\/[a-zA-Z0-9.+-]+;base64,[a-zA-Z0-9+/=]+$/)
+    .regex(
+      SUPPORTED_DATA_IMAGE_PATTERN,
+      "unsupported image format. use png, jpg, webp, gif, or avif.",
+    )
     .optional()
     .or(z.literal("")),
   avatarUrl: z.string().trim().url().optional().or(z.literal("")),
@@ -95,13 +101,12 @@ export async function PATCH(request: Request, { params }: RouteContext) {
         throw new Error("person not found");
       }
 
-      const avatarUrl =
+      const avatarCandidate =
         payload.avatarDataUrl?.trim() ||
         payload.avatarUrl?.trim() ||
         existing.avatarUrl?.trim() ||
-        `https://api.dicebear.com/9.x/personas/png?seed=${encodeURIComponent(
-          normalizedFullName,
-        )}`;
+        "";
+      const avatarUrl = toSupportedAvatarUrl(avatarCandidate, normalizedFullName);
       const headline = toNonEmptyString(
         payload.headline,
         `${normalizedProgram} @ asu`,
@@ -280,4 +285,30 @@ function normalizeOptionalUrl(value: string) {
   } catch {
     return candidate;
   }
+}
+
+function toSupportedAvatarUrl(candidate: string, fullName: string) {
+  const fallback = `https://api.dicebear.com/9.x/personas/png?seed=${encodeURIComponent(
+    fullName,
+  )}`;
+
+  const trimmed = candidate.trim();
+  if (!trimmed) {
+    return fallback;
+  }
+
+  if (/^data:image\//i.test(trimmed)) {
+    return SUPPORTED_DATA_IMAGE_PATTERN.test(trimmed) ? trimmed : fallback;
+  }
+
+  try {
+    const url = new URL(trimmed);
+    if (url.protocol === "http:" || url.protocol === "https:") {
+      return trimmed;
+    }
+  } catch {
+    return fallback;
+  }
+
+  return fallback;
 }

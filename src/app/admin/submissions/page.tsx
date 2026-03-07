@@ -76,6 +76,23 @@ const EMPTY_EDITABLE_PAYLOAD: EditablePayload = {
 };
 
 const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024;
+const SUPPORTED_IMAGE_MIME_TYPES = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+]);
+const SUPPORTED_IMAGE_EXTENSIONS = [
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+  ".gif",
+  ".avif",
+];
+const IMAGE_INPUT_ACCEPT = "image/png,image/jpeg,image/webp,image/gif,image/avif";
 
 export default function AdminSubmissionsPage() {
   const [token, setToken] = useState("");
@@ -242,13 +259,13 @@ export default function AdminSubmissionsPage() {
       return;
     }
 
-    if (!file.type.startsWith("image/")) {
-      setError("please upload an image file.");
+    if (file.size > MAX_AVATAR_SIZE_BYTES) {
+      setError("image too large. max file size is 2mb.");
       return;
     }
 
-    if (file.size > MAX_AVATAR_SIZE_BYTES) {
-      setError("image too large. max file size is 2mb.");
+    if (!isSupportedImageFile(file)) {
+      setError("unsupported image format. use png, jpg, webp, gif, or avif.");
       return;
     }
 
@@ -804,7 +821,7 @@ export default function AdminSubmissionsPage() {
                     </span>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept={IMAGE_INPUT_ACCEPT}
                       disabled={savingPersonId === person.id}
                       onChange={(event) =>
                         onPersonAvatarFileChange(
@@ -1005,6 +1022,16 @@ function readFileAsDataUrl(file: File) {
     reader.onerror = () => reject(reader.error ?? new Error("file read failed"));
     reader.readAsDataURL(file);
   });
+}
+
+function isSupportedImageFile(file: File) {
+  const mime = file.type.trim().toLowerCase();
+  if (mime.length > 0) {
+    return SUPPORTED_IMAGE_MIME_TYPES.has(mime);
+  }
+
+  const name = file.name.toLowerCase();
+  return SUPPORTED_IMAGE_EXTENSIONS.some((extension) => name.endsWith(extension));
 }
 
 function toSafeString(value: unknown) {

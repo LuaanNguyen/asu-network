@@ -34,6 +34,8 @@ const linkLabelByType = {
 } as const;
 
 const defaultFocusAreas = ["builders"];
+const SUPPORTED_DATA_IMAGE_PATTERN =
+  /^data:image\/(?:png|jpe?g|webp|gif|avif);base64,[a-zA-Z0-9+/=]+$/i;
 const companyDomainByName: Record<string, string> = {
   microsoft: "microsoft.com",
   amazon: "amazon.com",
@@ -161,10 +163,7 @@ async function listPeopleFromDb(query: PeopleQuery): Promise<PeopleResult> {
       id: toClientPersonId(row.id),
       slug: row.slug,
       fullName,
-      avatarUrl:
-        row.avatarUrl && row.avatarUrl.length > 0
-          ? row.avatarUrl
-          : `https://api.dicebear.com/9.x/personas/png?seed=${encodeURIComponent(fullName)}`,
+      avatarUrl: toSupportedAvatarUrl(row.avatarUrl, fullName),
       headline: row.headline,
       bio: row.bio,
       program: row.program,
@@ -285,4 +284,32 @@ function uniqueStrings(values: string[]) {
 function companyLogoUrl(name: string) {
   const domain = companyDomainByName[name.toLowerCase()] ?? "asu.edu";
   return `https://logo.clearbit.com/${domain}`;
+}
+
+function toSupportedAvatarUrl(
+  avatarUrl: string | null | undefined,
+  fullName: string,
+) {
+  const fallback = `https://api.dicebear.com/9.x/personas/png?seed=${encodeURIComponent(
+    fullName,
+  )}`;
+  const trimmed = avatarUrl?.trim() ?? "";
+  if (!trimmed) {
+    return fallback;
+  }
+
+  if (/^data:image\//i.test(trimmed)) {
+    return SUPPORTED_DATA_IMAGE_PATTERN.test(trimmed) ? trimmed : fallback;
+  }
+
+  try {
+    const url = new URL(trimmed);
+    if (url.protocol === "http:" || url.protocol === "https:") {
+      return trimmed;
+    }
+  } catch {
+    return fallback;
+  }
+
+  return fallback;
 }
