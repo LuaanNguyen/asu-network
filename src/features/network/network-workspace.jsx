@@ -101,18 +101,22 @@ export function NetworkWorkspace({ className, people }) {
       }
     }
 
-    // Enforce a deeply connected star backbone:
-    // choose a stable hub node and connect it to every other visible node.
+    // Enforce a complete mesh: every node connected to every other node.
     if (filteredPeople.length > 1) {
-      const hubId = [...filteredPeople]
-        .sort((a, b) => a.fullName.localeCompare(b.fullName))[0]?.id;
-      if (hubId) {
-        for (const person of filteredPeople) {
-          if (person.id === hubId) {
+      for (let sourceIndex = 0; sourceIndex < filteredPeople.length; sourceIndex += 1) {
+        const sourcePerson = filteredPeople[sourceIndex];
+        if (!sourcePerson) {
+          continue;
+        }
+        for (let targetIndex = sourceIndex + 1; targetIndex < filteredPeople.length; targetIndex += 1) {
+          const targetPerson = filteredPeople[targetIndex];
+          if (!targetPerson) {
             continue;
           }
-          const source = hubId < person.id ? hubId : person.id;
-          const target = hubId < person.id ? person.id : hubId;
+          const source =
+            sourcePerson.id < targetPerson.id ? sourcePerson.id : targetPerson.id;
+          const target =
+            sourcePerson.id < targetPerson.id ? targetPerson.id : sourcePerson.id;
           const key = `${source}:${target}`;
           if (seen.has(key)) {
             continue;
