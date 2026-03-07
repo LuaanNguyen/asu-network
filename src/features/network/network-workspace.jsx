@@ -102,6 +102,27 @@ export function NetworkWorkspace({ className, people }) {
       }
     }
 
+    // If there are no persisted relationships yet, build a light
+    // visualization-only network so the graph remains connected.
+    if (links.length === 0 && filteredPeople.length > 1) {
+      const sorted = [...filteredPeople].sort((a, b) =>
+        a.fullName.localeCompare(b.fullName),
+      );
+      for (let index = 1; index < sorted.length; index += 1) {
+        const source = sorted[index - 1]?.id;
+        const target = sorted[index]?.id;
+        if (!source || !target || source === target) {
+          continue;
+        }
+        const key = source < target ? `${source}:${target}` : `${target}:${source}`;
+        if (seen.has(key)) {
+          continue;
+        }
+        seen.add(key);
+        links.push({ source, target, inferred: true });
+      }
+    }
+
     return { nodes, links };
   }, [filteredPeople]);
 
