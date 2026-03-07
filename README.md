@@ -1,8 +1,8 @@
-# asu.network
+# asunetwork.com
 
 a webring for arizona state university students.
 
-## join asu.network
+## join asunetwork.com
 
 requirements: asu student + things you are building + at least one public link
 

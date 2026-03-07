@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "asu.network — the network for people who build",
-    short_name: "asu.network",
+    name: "asunetwork.com — the network for people who build",
+    short_name: "asunetwork.com",
     description:
       "Discover ASU's top engineers, designers, creators, and researchers.",
     start_url: "/",

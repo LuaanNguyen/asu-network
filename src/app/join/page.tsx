@@ -4,7 +4,7 @@ export default function JoinPage() {
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-14 sm:px-8">
       <header className="mb-8 space-y-4">
-        <p className="font-mono text-xs lowercase tracking-[0.2em] text-muted">Join asu.network</p>
+        <p className="font-mono text-xs lowercase tracking-[0.2em] text-muted">Join asunetwork.com</p>
         <h1 className="font-display text-4xl leading-tight text-foreground sm:text-5xl">
           Submit Your Profile
         </h1>
@@ -17,4 +17,3 @@ export default function JoinPage() {
     </main>
   );
 }
-

@@ -154,7 +154,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       );
       const bio = toNonEmptyString(
         approvedPayload.bio,
-        `${approvedPayload.fullName} is part of the asu.network builder community.`,
+        `${approvedPayload.fullName} is part of the asunetwork.com builder community.`,
       );
 
       const insertedPeople = await tx

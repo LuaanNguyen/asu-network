@@ -62,7 +62,7 @@ export default function Home() {
         <header className="mb-4 shrink-0 space-y-2.5 lg:mb-6 lg:space-y-3">
           <h1 className="display-heading text-3xl leading-tight sm:text-5xl">
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-            welcome to <a href="/">asu.network</a>
+            welcome to <a href="/">asunetwork.com</a>
           </h1>
           <p className="max-w-5xl text-sm leading-relaxed text-muted sm:text-base lg:max-w-6xl">
             asu packs an unusually high density of talented engineers,
@@ -90,7 +90,7 @@ export default function Home() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Join asu.network"
+          aria-label="Join asunetwork.com"
           className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1b2a]/40 p-4 backdrop-blur-sm"
           onClick={(event) => {
             if (event.target === event.currentTarget) {
@@ -108,7 +108,7 @@ export default function Home() {
               <X size={16} />
             </button>
             <div className="mb-4 pr-12">
-              <h2 className="display-heading text-3xl">join asu.network</h2>
+              <h2 className="display-heading text-3xl">join asunetwork.com</h2>
               <p className="mt-1 text-sm text-muted">
                 add your profile and links. submissions are reviewed before
                 publication.

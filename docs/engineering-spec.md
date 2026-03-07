@@ -1,8 +1,8 @@
-# asu.network engineering spec
+# asunetwork.com engineering spec
 
 ## 1. purpose
 
-`asu.network` is a one-screen talent network for asu students and alumni builders.
+`asunetwork.com` is a one-screen talent network for asu students and alumni builders.
 the product combines:
 
 - a searchable people list

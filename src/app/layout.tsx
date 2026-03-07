@@ -33,12 +33,12 @@ const metadataBase = (() => {
 export const metadata: Metadata = {
   metadataBase,
   title: {
-    default: "asu.network — the network for people who build",
-    template: "%s | asu.network",
+    default: "asunetwork.com — the network for people who build",
+    template: "%s | asunetwork.com",
   },
   description:
     "discover ASU's top engineers, designers, creators, and researchers. a searchable talent directory and connection graph for Arizona State University builders.",
-  applicationName: "asu.network",
+  applicationName: "asunetwork.com",
   alternates: {
     canonical: "/",
   },
@@ -62,8 +62,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "/",
-    siteName: "asu.network",
-    title: "asu.network — the network for people who build",
+    siteName: "asunetwork.com",
+    title: "asunetwork.com — the network for people who build",
     description:
       "discover ASU's top engineers, designers, creators, and researchers. explore profiles, projects, and connections across Arizona State University.",
     locale: "en_US",
@@ -72,19 +72,19 @@ export const metadata: Metadata = {
         url: "/asu_network.png",
         width: 1536,
         height: 1024,
-        alt: "asu.network — the network for people who build. A landing page showing a searchable talent directory for ASU builders.",
+        alt: "asunetwork.com — the network for people who build. A landing page showing a searchable talent directory for ASU builders.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "asu.network — the network for people who build",
+    title: "asunetwork.com — the network for people who build",
     description:
       "discover ASU's top engineers, designers, creators, and researchers. a searchable talent directory for Arizona State University.",
     images: [
       {
         url: "/asu_network.png",
-        alt: "asu.network — the network for people who build",
+        alt: "asunetwork.com — the network for people who build",
       },
     ],
   },
@@ -119,13 +119,13 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
-              name: "asu.network",
+              name: "asunetwork.com",
               url: siteUrl,
               description:
                 "A searchable talent directory and connection graph for Arizona State University builders, engineers, designers, creators, and researchers.",
               publisher: {
                 "@type": "Organization",
-                name: "asu.network",
+                name: "asunetwork.com",
                 url: siteUrl,
               },
               potentialAction: {
@@ -148,7 +148,7 @@ export default function RootLayout({
             <nav className="shell flex items-center justify-between rounded-2xl border border-line/60 px-4 py-3 lg:px-6 lg:py-3.5">
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a href="/" className="font-display text-xl leading-none">
-                asu.network
+                asunetwork.com
               </a>
               <p className="font-mono text-[11px] tracking-[0.16em] text-muted max-sm:hidden">
                 inspired by{" "}

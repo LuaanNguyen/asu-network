@@ -1,8 +1,8 @@
-# asu.network Master Plan
+# asunetwork.com Master Plan
 
 ## 1) Product Vision
 
-Build `asu.network` as the talent graph for ASU: a high-signal directory of engineers, builders, operators, and business leaders, with clear ways to discover people, understand what they work on, and connect.
+Build `asunetwork.com` as the talent graph for ASU: a high-signal directory of engineers, builders, operators, and business leaders, with clear ways to discover people, understand what they work on, and connect.
 
 ## 2) Goals and Success Metrics
 

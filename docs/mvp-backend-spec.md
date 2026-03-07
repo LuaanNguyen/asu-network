@@ -2,7 +2,7 @@
 
 ## scope
 
-deliver a minimal but real backend for `asu.network` that supports:
+deliver a minimal but real backend for `asunetwork.com` that supports:
 
 1. db-backed people reads
 2. db-backed submission writes

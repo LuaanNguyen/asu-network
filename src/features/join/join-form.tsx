@@ -269,7 +269,7 @@ export function JoinForm() {
           }}
           required
         />
-        I confirm this information can be publicly displayed on asu.network after moderation review.
+        I confirm this information can be publicly displayed on asunetwork.com after moderation review.
       </label>
 
       <button
