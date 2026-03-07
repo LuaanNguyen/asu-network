@@ -8,7 +8,7 @@ import {
   Search,
   Twitter,
 } from "lucide-react";
-import { forceCollide } from "d3-force-3d";
+import { forceCollide, forceX, forceY } from "d3-force-3d";
 import NextImage from "next/image";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -106,7 +106,45 @@ export function NetworkWorkspace({ className, people }) {
   }, [filteredPeople]);
 
   const nodeCount = graphData.nodes.length;
+  const hasGraphLinks = graphData.links.length > 0;
   const graphTune = useMemo(() => {
+    if (!hasGraphLinks) {
+      if (nodeCount <= 6) {
+        return {
+          collide: NODE_RADIUS * 2.7,
+          charge: -340,
+          chargeDistanceMax: 760,
+          linkDistance: 160,
+          linkStrength: 0,
+          zoom: 1.15,
+          centerStrength: 0.26,
+          axisStrength: 0.1,
+        };
+      }
+      if (nodeCount <= 12) {
+        return {
+          collide: NODE_RADIUS * 2.9,
+          charge: -460,
+          chargeDistanceMax: 980,
+          linkDistance: 190,
+          linkStrength: 0,
+          zoom: 1.05,
+          centerStrength: 0.22,
+          axisStrength: 0.08,
+        };
+      }
+      return {
+        collide: NODE_RADIUS * 3.1,
+        charge: -580,
+        chargeDistanceMax: 1200,
+        linkDistance: 220,
+        linkStrength: 0,
+        zoom: 0.98,
+        centerStrength: 0.18,
+        axisStrength: 0.07,
+      };
+    }
+
     if (nodeCount <= 6) {
       return {
         collide: NODE_RADIUS * 2.8,
@@ -115,6 +153,8 @@ export function NetworkWorkspace({ className, people }) {
         linkDistance: 180,
         linkStrength: 0.15,
         zoom: 1.6,
+        centerStrength: 0.08,
+        axisStrength: 0.03,
       };
     }
     if (nodeCount <= 12) {
@@ -125,6 +165,8 @@ export function NetworkWorkspace({ className, people }) {
         linkDistance: 220,
         linkStrength: 0.1,
         zoom: 1.3,
+        centerStrength: 0.06,
+        axisStrength: 0.025,
       };
     }
     return {
@@ -134,8 +176,10 @@ export function NetworkWorkspace({ className, people }) {
       linkDistance: 280,
       linkStrength: 0.06,
       zoom: 1.1,
+      centerStrength: 0.045,
+      axisStrength: 0.02,
     };
-  }, [nodeCount]);
+  }, [hasGraphLinks, nodeCount]);
 
   useEffect(() => {
     const element = graphContainerRef.current;
@@ -168,7 +212,9 @@ export function NetworkWorkspace({ className, people }) {
     graph.d3Force("charge")?.distanceMax?.(graphTune.chargeDistanceMax);
     graph.d3Force("link")?.distance?.(graphTune.linkDistance);
     graph.d3Force("link")?.strength?.(graphTune.linkStrength);
-    graph.d3Force("center")?.strength?.(0.02);
+    graph.d3Force("center")?.strength?.(graphTune.centerStrength);
+    graph.d3Force("x", forceX(0).strength(graphTune.axisStrength));
+    graph.d3Force("y", forceY(0).strength(graphTune.axisStrength));
     graph.d3ReheatSimulation?.();
   }, [graphData, graphTune]);
 
