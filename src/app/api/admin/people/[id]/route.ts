@@ -14,6 +14,25 @@ type RouteContext = {
 
 const SUPPORTED_DATA_IMAGE_PATTERN =
   /^data:image\/(?:png|jpe?g|webp|gif|avif);base64,[a-zA-Z0-9+/=]+$/i;
+const HTTP_PROTOCOL_PATTERN = /^[a-z][a-z0-9+.-]*:\/\//i;
+
+const optionalNormalizedUrlSchema = z
+  .string()
+  .trim()
+  .max(500)
+  .optional()
+  .or(z.literal(""))
+  .refine(
+    (value) => {
+      const raw = typeof value === "string" ? value : "";
+      return isValidOptionalHttpUrl(raw);
+    },
+    { message: "invalid url" },
+  )
+  .transform((value) => {
+    const raw = typeof value === "string" ? value : "";
+    return normalizeOptionalUrl(raw);
+  });
 
 const adminPersonUpdateSchema = z.object({
   fullName: z.string().trim().min(2).max(120),
@@ -28,10 +47,10 @@ const adminPersonUpdateSchema = z.object({
   headline: z.string().trim().max(180).optional().or(z.literal("")),
   bio: z.string().trim().max(1400).optional().or(z.literal("")),
   email: z.string().trim().email(),
-  github: z.string().trim().url().optional().or(z.literal("")),
-  linkedin: z.string().trim().url().optional().or(z.literal("")),
-  site: z.string().trim().url().optional().or(z.literal("")),
-  x: z.string().trim().url().optional().or(z.literal("")),
+  github: optionalNormalizedUrlSchema,
+  linkedin: optionalNormalizedUrlSchema,
+  site: optionalNormalizedUrlSchema,
+  x: optionalNormalizedUrlSchema,
   avatarDataUrl: z
     .string()
     .trim()
@@ -270,7 +289,7 @@ function normalizeOptionalUrl(value: string) {
   if (!trimmed) {
     return "";
   }
-  const candidate = /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)
+  const candidate = HTTP_PROTOCOL_PATTERN.test(trimmed)
     ? trimmed
     : `https://${trimmed}`;
 
@@ -311,4 +330,23 @@ function toSupportedAvatarUrl(candidate: string, fullName: string) {
   }
 
   return fallback;
+}
+
+function isValidOptionalHttpUrl(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return true;
+  }
+  const candidate = HTTP_PROTOCOL_PATTERN.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+  try {
+    const url = new URL(candidate);
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return false;
+    }
+    return url.host.length > 0;
+  } catch {
+    return false;
+  }
 }
