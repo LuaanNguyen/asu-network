@@ -11,6 +11,7 @@ import type { Person } from "@/lib/validation/person";
 export default function Home() {
   const [formOpen, setFormOpen] = useState(false);
   const [people, setPeople] = useState<Person[]>(samplePeople);
+  const [peopleLoading, setPeopleLoading] = useState(true);
 
   useEffect(() => {
     if (!formOpen) {
@@ -46,6 +47,10 @@ export default function Home() {
         }
       } catch {
         // Keep sample data fallback on network/API errors.
+      } finally {
+        if (!controller.signal.aborted) {
+          setPeopleLoading(false);
+        }
       }
     }
 
@@ -83,6 +88,7 @@ export default function Home() {
         <NetworkWorkspace
           className="min-h-0 flex-1"
           people={people}
+          isLoading={peopleLoading}
           header={
             <div className="mb-4 hidden space-y-1.5 lg:block">
               <h1 className="display-heading text-3xl leading-tight">

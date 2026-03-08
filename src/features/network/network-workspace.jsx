@@ -18,7 +18,6 @@ import { cn } from "@/lib/utils/cn";
 
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
-  loading: () => <GraphSkeleton />,
 });
 
 const LINK_ICON_CLASS = "h-3.5 w-3.5";
@@ -29,7 +28,7 @@ const LINK_ICON_BY_TYPE = {
   x: X,
 };
 
-export function NetworkWorkspace({ className, people, header }) {
+export function NetworkWorkspace({ className, people, header, isLoading = false }) {
   const [query, setQuery] = useState("");
   const [mobilePane, setMobilePane] = useState("list");
   const [selectedId, setSelectedId] = useState(people[0]?.id ?? "");
@@ -324,7 +323,7 @@ export function NetworkWorkspace({ className, people, header }) {
         {header}
         <header className="space-y-3">
           <p className="font-mono text-xs lowercase tracking-[0.16em] text-muted">
-            {filteredPeople.length} members
+            {isLoading ? "loading members..." : `${filteredPeople.length} members`}
           </p>
           <label className="relative block">
             <Search
@@ -347,7 +346,9 @@ export function NetworkWorkspace({ className, people, header }) {
         </div>
 
         <ul className="mt-3 flex-1 space-y-1.5 overflow-y-auto pr-1 lg:mt-3 lg:space-y-1.5 lg:pr-2">
-          {filteredPeople.length === 0 ? (
+          {isLoading ? (
+            <ListSkeletonRows />
+          ) : filteredPeople.length === 0 ? (
             <li className="rounded-xl border border-dashed border-line/80 bg-surface p-4 text-sm text-muted">
               no members yet. use the join form to add the first profile.
             </li>
@@ -526,7 +527,9 @@ export function NetworkWorkspace({ className, people, header }) {
               </div>
             )
           ) : (
-            <GraphSkeleton />
+            <div className="flex h-full items-center justify-center text-sm text-muted">
+              no graph data yet.
+            </div>
           )}
         </div>
 
@@ -707,18 +710,34 @@ function drawAvatarCover(ctx, image, centerX, centerY, radius) {
   );
 }
 
-function GraphSkeleton() {
+function ListSkeletonRows() {
   return (
-    <div className="flex h-full w-full items-center justify-center">
-      <div className="w-full max-w-[560px] rounded-2xl border border-line/70 bg-surface/70 p-5 sm:p-6">
-        <div className="h-3 w-32 animate-pulse rounded-full bg-surface-strong/70" />
-        <div className="mt-4 grid grid-cols-3 gap-3">
-          <div className="h-16 animate-pulse rounded-xl bg-surface-strong/60" />
-          <div className="h-16 animate-pulse rounded-xl bg-surface-strong/60" />
-          <div className="h-16 animate-pulse rounded-xl bg-surface-strong/60" />
-        </div>
-        <div className="mt-5 h-40 animate-pulse rounded-xl bg-surface-strong/50 sm:h-44" />
-      </div>
-    </div>
+    <>
+      {Array.from({ length: 6 }).map((_, index) => (
+        <li
+          key={`list-skeleton-${index}`}
+          className="rounded-lg border border-line/70 bg-surface p-2 lg:p-2.5"
+          aria-hidden="true"
+        >
+          <div className="grid gap-2 md:grid-cols-[minmax(0,2.5fr)_minmax(0,1.2fr)_minmax(0,1.9fr)] md:items-center lg:gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 animate-pulse rounded-full bg-surface-strong/70 lg:h-9 lg:w-9" />
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <div className="h-3 w-32 animate-pulse rounded bg-surface-strong/70" />
+                  <div className="h-2.5 w-44 max-w-full animate-pulse rounded bg-surface-strong/55" />
+                </div>
+              </div>
+            </div>
+            <div className="h-3 w-28 max-w-full animate-pulse rounded bg-surface-strong/60" />
+            <div className="flex gap-1.5">
+              <div className="h-7 w-7 animate-pulse rounded-full bg-surface-strong/65" />
+              <div className="h-7 w-7 animate-pulse rounded-full bg-surface-strong/65" />
+              <div className="h-7 w-7 animate-pulse rounded-full bg-surface-strong/65" />
+            </div>
+          </div>
+        </li>
+      ))}
+    </>
   );
 }
