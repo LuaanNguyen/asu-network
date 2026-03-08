@@ -312,33 +312,6 @@ export function NetworkWorkspace({ className, people, header }) {
         className,
       )}
     >
-      <div className="flex w-full rounded-xl border border-line/60 bg-surface/70 p-1 lg:hidden">
-        <button
-          type="button"
-          onClick={() => setMobilePane("list")}
-          className={cn(
-            "flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition",
-            mobilePane === "list"
-              ? "bg-accent text-white"
-              : "text-muted hover:bg-surface-strong/40",
-          )}
-        >
-          people list
-        </button>
-        <button
-          type="button"
-          onClick={() => setMobilePane("graph")}
-          className={cn(
-            "flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition",
-            mobilePane === "graph"
-              ? "bg-accent text-white"
-              : "text-muted hover:bg-surface-strong/40",
-          )}
-        >
-          graph
-        </button>
-      </div>
-
       <aside
         className={cn(
           "min-h-0 flex-col overflow-hidden p-2 sm:p-3 lg:h-full lg:p-0 xl:p-0",
@@ -361,7 +334,7 @@ export function NetworkWorkspace({ className, people, header }) {
               value={query}
               onChange={(event) => setQuery(event.currentTarget.value)}
               placeholder="search by name or skill..."
-              className="h-11 w-full rounded-xl border border-line bg-white pl-9 pr-3 text-sm text-foreground outline-none ring-accent transition focus:ring-2 lg:h-12"
+              className="h-10 w-full rounded-xl border border-line bg-white pl-9 pr-3 text-sm text-foreground outline-none ring-accent transition focus:ring-2 lg:h-11"
             />
           </label>
         </header>
@@ -561,6 +534,33 @@ export function NetworkWorkspace({ className, people, header }) {
           </div>
         ) : null}
       </section>
+
+      <div className="flex w-full rounded-xl border border-line/60 bg-surface/70 p-1 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setMobilePane("list")}
+          className={cn(
+            "flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition",
+            mobilePane === "list"
+              ? "bg-accent text-white"
+              : "text-muted hover:bg-surface-strong/40",
+          )}
+        >
+          people list
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobilePane("graph")}
+          className={cn(
+            "flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition",
+            mobilePane === "graph"
+              ? "bg-accent text-white"
+              : "text-muted hover:bg-surface-strong/40",
+          )}
+        >
+          graph
+        </button>
+      </div>
     </section>
   );
 }
