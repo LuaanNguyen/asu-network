@@ -68,14 +68,16 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
   const graphData = useMemo(() => {
     const visibleIds = new Set(filteredPeople.map((person) => person.id));
     const count = Math.max(filteredPeople.length, 1);
-    const baseRadius = Math.min(420, Math.max(150, count * 24));
+    const baseRadius = Math.min(760, Math.max(260, count * 34));
     const nodes = filteredPeople.map((person, index) => {
       const angle = (index / count) * Math.PI * 2;
+      const radialMultiplier = 0.74 + (index % 5) * 0.08;
+      const ringRadius = baseRadius * radialMultiplier;
       return {
         id: person.id,
         person,
-        x: Math.cos(angle) * baseRadius,
-        y: Math.sin(angle) * baseRadius,
+        x: Math.cos(angle) * ringRadius + Math.cos(index * 7.17) * 16,
+        y: Math.sin(angle) * ringRadius + Math.sin(index * 5.31) * 16,
       };
     });
     const links = [];
@@ -192,37 +194,37 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
 
     if (nodeCount <= 6) {
       return {
-        collide: nodeRadius * 2.8,
-        charge: -1800,
-        chargeDistanceMax: 1800,
-        linkDistance: 180,
-        linkStrength: 0.15,
-        zoom: 1.6,
-        centerStrength: 0.08,
-        axisStrength: 0.03,
+        collide: nodeRadius * 3.2,
+        charge: -2400,
+        chargeDistanceMax: 2500,
+        linkDistance: 230,
+        linkStrength: 0.07,
+        zoom: 1.32,
+        centerStrength: 0.03,
+        axisStrength: 0.014,
       };
     }
     if (nodeCount <= 12) {
       return {
-        collide: nodeRadius * 3.0,
-        charge: -2400,
-        chargeDistanceMax: 2400,
-        linkDistance: 220,
-        linkStrength: 0.1,
-        zoom: 1.3,
-        centerStrength: 0.06,
-        axisStrength: 0.025,
+        collide: nodeRadius * 3.5,
+        charge: -3400,
+        chargeDistanceMax: 3400,
+        linkDistance: 300,
+        linkStrength: 0.05,
+        zoom: 1.08,
+        centerStrength: 0.022,
+        axisStrength: 0.01,
       };
     }
     return {
-      collide: nodeRadius * 3.2,
-      charge: -3200,
-      chargeDistanceMax: 3500,
-      linkDistance: 280,
-      linkStrength: 0.06,
-      zoom: 1.1,
-      centerStrength: 0.045,
-      axisStrength: 0.02,
+      collide: nodeRadius * 4.0,
+      charge: -4600,
+      chargeDistanceMax: 5000,
+      linkDistance: 390,
+      linkStrength: 0.03,
+      zoom: 0.9,
+      centerStrength: 0.012,
+      axisStrength: 0.008,
     };
   }, [hasGraphLinks, nodeCount, nodeRadius]);
 
@@ -271,8 +273,8 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
 
     if (!hasPlayedIntroRef.current) {
       hasPlayedIntroRef.current = true;
-      graph.zoom(0.86, 0);
-      graph.centerAt(0, 36, 0);
+      graph.zoom(0.72, 0);
+      graph.centerAt(0, 0, 0);
 
       const timer = window.setTimeout(() => {
         graph.centerAt(0, 0, 1400);
