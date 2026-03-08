@@ -391,6 +391,9 @@ export function NetworkWorkspace({ className, people, header }) {
                           <p className="truncate text-sm font-semibold text-foreground">
                             {person.fullName}
                           </p>
+                          <p className="mt-0.5 overflow-hidden text-xs leading-snug text-muted [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+                            {person.bio}
+                          </p>
                         </div>
                       </div>
                     </div>
