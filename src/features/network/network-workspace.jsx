@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils/cn";
 
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
+  loading: () => <GraphSkeleton />,
 });
 
 const LINK_ICON_CLASS = "h-3.5 w-3.5";
@@ -446,82 +447,86 @@ export function NetworkWorkspace({ className, people, header }) {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_14%,rgba(140,29,64,0.24),transparent_42%),radial-gradient(circle_at_84%_20%,rgba(255,198,39,0.2),transparent_46%)]" />
         <div ref={graphContainerRef} className="relative h-full min-h-0">
           {graphSize.width > 0 && graphSize.height > 0 ? (
-            <ForceGraph2D
-              ref={graphRef}
-              width={graphSize.width}
-              height={graphSize.height}
-              graphData={graphData}
-              warmupTicks={160}
-              cooldownTicks={260}
-              d3AlphaDecay={0.012}
-              d3VelocityDecay={0.18}
-              nodeRelSize={Math.max(5, Math.round(nodeRadius * 0.45))}
-              linkWidth={(link) => {
-                const source = getNodeId(link.source);
-                const target = getNodeId(link.target);
-                return source === activeSelectedId ||
-                  target === activeSelectedId
-                  ? 2.6
-                  : 1.3;
-              }}
-              linkColor={(link) => {
-                const source = getNodeId(link.source);
-                const target = getNodeId(link.target);
-                return source === activeSelectedId ||
-                  target === activeSelectedId
-                  ? "rgba(140, 29, 64, 0.48)"
-                  : "rgba(15, 27, 42, 0.11)";
-              }}
-              onNodeClick={(node) => setSelectedId(getNodeId(node.id))}
-              nodePointerAreaPaint={(node, color, ctx) => {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.arc(
-                  node.x ?? 0,
-                  node.y ?? 0,
-                  nodeRadius + 8,
-                  0,
-                  Math.PI * 2,
-                  false,
-                );
-                ctx.fill();
-              }}
-              nodeCanvasObject={(node, ctx) => {
-                const person = node.person;
-                if (!person) {
-                  return;
-                }
+            filteredPeople.length > 0 ? (
+              <ForceGraph2D
+                ref={graphRef}
+                width={graphSize.width}
+                height={graphSize.height}
+                graphData={graphData}
+                warmupTicks={160}
+                cooldownTicks={260}
+                d3AlphaDecay={0.012}
+                d3VelocityDecay={0.18}
+                nodeRelSize={Math.max(5, Math.round(nodeRadius * 0.45))}
+                linkWidth={(link) => {
+                  const source = getNodeId(link.source);
+                  const target = getNodeId(link.target);
+                  return source === activeSelectedId ||
+                    target === activeSelectedId
+                    ? 2.6
+                    : 1.3;
+                }}
+                linkColor={(link) => {
+                  const source = getNodeId(link.source);
+                  const target = getNodeId(link.target);
+                  return source === activeSelectedId ||
+                    target === activeSelectedId
+                    ? "rgba(140, 29, 64, 0.48)"
+                    : "rgba(15, 27, 42, 0.11)";
+                }}
+                onNodeClick={(node) => setSelectedId(getNodeId(node.id))}
+                nodePointerAreaPaint={(node, color, ctx) => {
+                  ctx.fillStyle = color;
+                  ctx.beginPath();
+                  ctx.arc(
+                    node.x ?? 0,
+                    node.y ?? 0,
+                    nodeRadius + 8,
+                    0,
+                    Math.PI * 2,
+                    false,
+                  );
+                  ctx.fill();
+                }}
+                nodeCanvasObject={(node, ctx) => {
+                  const person = node.person;
+                  if (!person) {
+                    return;
+                  }
 
-                const x = node.x ?? 0;
-                const y = node.y ?? 0;
-                const selected = person.id === activeSelectedId;
-                const radius = selected ? nodeRadius + 2 : nodeRadius;
-                const image = getAvatarImage(person.avatarUrl);
+                  const x = node.x ?? 0;
+                  const y = node.y ?? 0;
+                  const selected = person.id === activeSelectedId;
+                  const radius = selected ? nodeRadius + 2 : nodeRadius;
+                  const image = getAvatarImage(person.avatarUrl);
 
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(x, y, radius, 0, Math.PI * 2, false);
-                ctx.closePath();
-                ctx.clip();
-                if (image) {
-                  drawAvatarCover(ctx, image, x, y, radius);
-                } else {
-                  ctx.fillStyle = "#e9e2d4";
-                  ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
-                }
-                ctx.restore();
+                  ctx.save();
+                  ctx.beginPath();
+                  ctx.arc(x, y, radius, 0, Math.PI * 2, false);
+                  ctx.closePath();
+                  ctx.clip();
+                  if (image) {
+                    drawAvatarCover(ctx, image, x, y, radius);
+                  } else {
+                    ctx.fillStyle = "#e9e2d4";
+                    ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+                  }
+                  ctx.restore();
 
-                ctx.beginPath();
-                ctx.arc(x, y, radius + 1, 0, Math.PI * 2, false);
-                ctx.strokeStyle = selected ? "#8c1d40" : "#03273a";
-                ctx.lineWidth = selected ? 3 : 1.3;
-                ctx.stroke();
-              }}
-            />
+                  ctx.beginPath();
+                  ctx.arc(x, y, radius + 1, 0, Math.PI * 2, false);
+                  ctx.strokeStyle = selected ? "#8c1d40" : "#03273a";
+                  ctx.lineWidth = selected ? 3 : 1.3;
+                  ctx.stroke();
+                }}
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-sm text-muted">
+                no graph data yet.
+              </div>
+            )
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-muted">
-              no graph data yet.
-            </div>
+            <GraphSkeleton />
           )}
         </div>
 
@@ -699,5 +704,21 @@ function drawAvatarCover(ctx, image, centerX, centerY, radius) {
     centerY - radius,
     diameter,
     diameter,
+  );
+}
+
+function GraphSkeleton() {
+  return (
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="w-full max-w-[560px] rounded-2xl border border-line/70 bg-surface/70 p-5 sm:p-6">
+        <div className="h-3 w-32 animate-pulse rounded-full bg-surface-strong/70" />
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          <div className="h-16 animate-pulse rounded-xl bg-surface-strong/60" />
+          <div className="h-16 animate-pulse rounded-xl bg-surface-strong/60" />
+          <div className="h-16 animate-pulse rounded-xl bg-surface-strong/60" />
+        </div>
+        <div className="mt-5 h-40 animate-pulse rounded-xl bg-surface-strong/50 sm:h-44" />
+      </div>
+    </div>
   );
 }
