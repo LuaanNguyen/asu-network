@@ -136,13 +136,13 @@ export function NetworkWorkspace({ className, people, header }) {
           : 1280;
 
     if (width >= 1500) {
-      return 22;
+      return 23;
     }
     if (width >= 1200) {
-      return 20;
+      return 21;
     }
     if (width >= 900) {
-      return 19;
+      return 20;
     }
     if (width >= 700) {
       return 17;
