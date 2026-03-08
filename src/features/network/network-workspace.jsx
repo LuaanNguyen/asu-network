@@ -39,6 +39,7 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
   const graphContainerRef = useRef(null);
   const imageCache = useRef(new Map());
   const hasPlayedIntroRef = useRef(false);
+  const needsSettledFitRef = useRef(false);
 
   const filteredPeople = useMemo(() => {
     const term = query.trim().toLowerCase();
@@ -68,7 +69,7 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
   const graphData = useMemo(() => {
     const visibleIds = new Set(filteredPeople.map((person) => person.id));
     const count = Math.max(filteredPeople.length, 1);
-    const baseRadius = Math.min(420, Math.max(150, count * 24));
+    const baseRadius = Math.min(760, Math.max(240, count * 30));
     const nodes = filteredPeople.map((person, index) => {
       const angle = (index / count) * Math.PI * 2;
       return {
@@ -136,18 +137,18 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
           : 1280;
 
     if (width >= 1500) {
-      return 23;
+      return 9;
     }
     if (width >= 1200) {
-      return 21;
+      return 8;
     }
     if (width >= 900) {
-      return 20;
+      return 7;
     }
     if (width >= 700) {
-      return 17;
+      return 6;
     }
-    return 15;
+    return 5;
   }, [graphSize.width]);
 
   const nodeCount = graphData.nodes.length;
@@ -161,6 +162,7 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
           chargeDistanceMax: 760,
           linkDistance: 160,
           linkStrength: 0,
+          inferredLinkStrength: 0,
           zoom: 1.15,
           centerStrength: 0.26,
           axisStrength: 0.1,
@@ -173,6 +175,7 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
           chargeDistanceMax: 980,
           linkDistance: 190,
           linkStrength: 0,
+          inferredLinkStrength: 0,
           zoom: 1.05,
           centerStrength: 0.22,
           axisStrength: 0.08,
@@ -184,6 +187,7 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
         chargeDistanceMax: 1200,
         linkDistance: 220,
         linkStrength: 0,
+        inferredLinkStrength: 0,
         zoom: 0.98,
         centerStrength: 0.18,
         axisStrength: 0.07,
@@ -192,37 +196,40 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
 
     if (nodeCount <= 6) {
       return {
-        collide: nodeRadius * 2.8,
-        charge: -1800,
-        chargeDistanceMax: 1800,
-        linkDistance: 180,
-        linkStrength: 0.15,
-        zoom: 1.6,
-        centerStrength: 0.08,
-        axisStrength: 0.03,
+        collide: nodeRadius * 3.3,
+        charge: -2600,
+        chargeDistanceMax: 3200,
+        linkDistance: 320,
+        linkStrength: 0.03,
+        inferredLinkStrength: 0.0012,
+        zoom: 1.18,
+        centerStrength: 0.008,
+        axisStrength: 0.002,
       };
     }
     if (nodeCount <= 12) {
       return {
-        collide: nodeRadius * 3.0,
-        charge: -2400,
-        chargeDistanceMax: 2400,
-        linkDistance: 220,
-        linkStrength: 0.1,
-        zoom: 1.3,
-        centerStrength: 0.06,
-        axisStrength: 0.025,
+        collide: nodeRadius * 3.6,
+        charge: -3400,
+        chargeDistanceMax: 4600,
+        linkDistance: 470,
+        linkStrength: 0.022,
+        inferredLinkStrength: 0.0009,
+        zoom: 1,
+        centerStrength: 0.006,
+        axisStrength: 0.0018,
       };
     }
     return {
-      collide: nodeRadius * 3.2,
-      charge: -3200,
-      chargeDistanceMax: 3500,
-      linkDistance: 280,
-      linkStrength: 0.06,
-      zoom: 1.1,
-      centerStrength: 0.045,
-      axisStrength: 0.02,
+      collide: nodeRadius * 3.8,
+      charge: -4200,
+      chargeDistanceMax: 5800,
+      linkDistance: 620,
+      linkStrength: 0.016,
+      inferredLinkStrength: 0.0007,
+      zoom: 0.82,
+      centerStrength: 0.004,
+      axisStrength: 0.0015,
     };
   }, [hasGraphLinks, nodeCount, nodeRadius]);
 
@@ -256,7 +263,11 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
     graph.d3Force("charge")?.strength?.(graphTune.charge);
     graph.d3Force("charge")?.distanceMax?.(graphTune.chargeDistanceMax);
     graph.d3Force("link")?.distance?.(graphTune.linkDistance);
-    graph.d3Force("link")?.strength?.(graphTune.linkStrength);
+    graph
+      .d3Force("link")
+      ?.strength?.((link) =>
+        link?.inferred ? graphTune.inferredLinkStrength : graphTune.linkStrength,
+      );
     graph.d3Force("center")?.strength?.(graphTune.centerStrength);
     graph.d3Force("x", forceX(0).strength(graphTune.axisStrength));
     graph.d3Force("y", forceY(0).strength(graphTune.axisStrength));
@@ -264,30 +275,51 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
   }, [graphData, graphTune]);
 
   useEffect(() => {
+    needsSettledFitRef.current = graphData.nodes.length > 0;
+  }, [graphData]);
+
+  useEffect(() => {
     const graph = graphRef.current;
-    if (!graph || graphSize.width <= 0 || graphSize.height <= 0) {
+    if (
+      !graph ||
+      graphSize.width <= 0 ||
+      graphSize.height <= 0 ||
+      graphData.nodes.length === 0
+    ) {
       return;
     }
 
     if (!hasPlayedIntroRef.current) {
       hasPlayedIntroRef.current = true;
-      graph.zoom(0.86, 0);
-      graph.centerAt(0, 36, 0);
+      graph.zoom(0.8, 0);
+      graph.centerAt(0, 0, 0);
+      graph.d3ReheatSimulation?.();
+
+      let rafTwo = 0;
+      const rafOne = window.requestAnimationFrame(() => {
+        rafTwo = window.requestAnimationFrame(() => {
+          graph.zoomToFit(420, 40);
+        });
+      });
 
       const timer = window.setTimeout(() => {
-        graph.centerAt(0, 0, 1400);
-        graph.zoom(graphTune.zoom, 1400);
-      }, 110);
+        graph.d3ReheatSimulation?.();
+        graph.zoomToFit(700, 40);
+      }, 900);
 
-      return () => window.clearTimeout(timer);
+      return () => {
+        window.cancelAnimationFrame(rafOne);
+        window.cancelAnimationFrame(rafTwo);
+        window.clearTimeout(timer);
+      };
     }
 
     const timer = window.setTimeout(() => {
-      graph.zoom(graphTune.zoom, 380);
+      graph.zoomToFit(320, 40);
     }, 80);
 
     return () => window.clearTimeout(timer);
-  }, [graphData, graphSize.height, graphSize.width, graphTune.zoom]);
+  }, [graphData, graphSize.height, graphSize.width]);
 
   const selectedPerson =
     filteredPeople.find((person) => person.id === activeSelectedId) ??
@@ -453,29 +485,43 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
                 ref={graphRef}
                 width={graphSize.width}
                 height={graphSize.height}
+                numDimensions={2}
                 graphData={graphData}
                 warmupTicks={160}
-                cooldownTicks={260}
+                cooldownTicks={340}
                 d3AlphaDecay={0.012}
-                d3VelocityDecay={0.18}
+                d3VelocityDecay={0.15}
                 nodeRelSize={Math.max(5, Math.round(nodeRadius * 0.45))}
                 linkWidth={(link) => {
                   const source = getNodeId(link.source);
                   const target = getNodeId(link.target);
-                  return source === activeSelectedId ||
-                    target === activeSelectedId
-                    ? 2.6
-                    : 1.3;
+                  return source === activeSelectedId || target === activeSelectedId
+                    ? 1.15
+                    : 0.55;
                 }}
                 linkColor={(link) => {
                   const source = getNodeId(link.source);
                   const target = getNodeId(link.target);
-                  return source === activeSelectedId ||
-                    target === activeSelectedId
+                  return source === activeSelectedId || target === activeSelectedId
                     ? "rgba(140, 29, 64, 0.48)"
                     : "rgba(15, 27, 42, 0.11)";
                 }}
                 onNodeClick={(node) => setSelectedId(getNodeId(node.id))}
+                onEngineStop={() => {
+                  if (!needsSettledFitRef.current) {
+                    return;
+                  }
+                  const graph = graphRef.current;
+                  if (
+                    !graph ||
+                    graphSize.width <= 0 ||
+                    graphSize.height <= 0
+                  ) {
+                    return;
+                  }
+                  needsSettledFitRef.current = false;
+                  graph.zoomToFit(420, 40);
+                }}
                 nodePointerAreaPaint={(node, color, ctx) => {
                   ctx.fillStyle = color;
                   ctx.beginPath();
@@ -498,7 +544,7 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
                   const x = node.x ?? 0;
                   const y = node.y ?? 0;
                   const selected = person.id === activeSelectedId;
-                  const radius = selected ? nodeRadius + 2 : nodeRadius;
+                  const radius = selected ? nodeRadius + 1 : nodeRadius;
                   const image = getAvatarImage(person.avatarUrl);
 
                   ctx.save();
@@ -515,9 +561,9 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
                   ctx.restore();
 
                   ctx.beginPath();
-                  ctx.arc(x, y, radius + 1, 0, Math.PI * 2, false);
+                  ctx.arc(x, y, radius + 0.35, 0, Math.PI * 2, false);
                   ctx.strokeStyle = selected ? "#8c1d40" : "#03273a";
-                  ctx.lineWidth = selected ? 3 : 1.3;
+                  ctx.lineWidth = selected ? 0.8 : 0.45;
                   ctx.stroke();
                 }}
               />
