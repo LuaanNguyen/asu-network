@@ -392,7 +392,7 @@ export function NetworkWorkspace({ className, people, header }) {
                             {person.fullName}
                           </p>
                           <p className="mt-0.5 overflow-hidden text-xs leading-snug text-muted [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
-                            {person.bio}
+                            {person.headline}
                           </p>
                         </div>
                       </div>
