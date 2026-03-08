@@ -7,7 +7,7 @@ import {
   Linkedin,
   Mail,
   Search,
-  Twitter,
+  X,
 } from "lucide-react";
 import { forceCollide, forceX, forceY } from "d3-force-3d";
 import NextImage from "next/image";
@@ -25,7 +25,7 @@ const LINK_ICON_BY_TYPE = {
   github: Github,
   linkedin: Linkedin,
   email: Mail,
-  x: Twitter,
+  x: X,
 };
 
 export function NetworkWorkspace({ className, people, header }) {
