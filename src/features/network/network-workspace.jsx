@@ -64,10 +64,6 @@ export function NetworkWorkspace({ className, people, header }) {
   )
     ? selectedId
     : (filteredPeople[0]?.id ?? "");
-  const programCount = useMemo(
-    () => new Set(filteredPeople.map((person) => person.program)).size,
-    [filteredPeople],
-  );
 
   const graphData = useMemo(() => {
     const visibleIds = new Set(filteredPeople.map((person) => person.id));
@@ -354,7 +350,7 @@ export function NetworkWorkspace({ className, people, header }) {
         {header}
         <header className="space-y-3">
           <p className="font-mono text-xs lowercase tracking-[0.16em] text-muted">
-            {filteredPeople.length} members · {programCount} programs
+            {filteredPeople.length} members
           </p>
           <label className="relative block">
             <Search
@@ -364,15 +360,14 @@ export function NetworkWorkspace({ className, people, header }) {
             <input
               value={query}
               onChange={(event) => setQuery(event.currentTarget.value)}
-              placeholder="search by name, program, skill..."
+              placeholder="search by name or skill..."
               className="h-11 w-full rounded-xl border border-line bg-white pl-9 pr-3 text-sm text-foreground outline-none ring-accent transition focus:ring-2 lg:h-12"
             />
           </label>
         </header>
 
-        <div className="mt-5 hidden grid-cols-[minmax(0,2.15fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1.8fr)] gap-2 border-b border-line pb-2 font-mono text-[10px] lowercase tracking-[0.14em] text-muted md:grid lg:mt-6 lg:pb-3">
+        <div className="mt-5 hidden grid-cols-[minmax(0,2.5fr)_minmax(0,1.2fr)_minmax(0,1.9fr)] gap-2 border-b border-line pb-2 font-mono text-[10px] lowercase tracking-[0.14em] text-muted md:grid lg:mt-6 lg:pb-3">
           <p>name</p>
-          <p>program</p>
           <p>site</p>
           <p>links</p>
         </div>
@@ -409,7 +404,7 @@ export function NetworkWorkspace({ className, people, header }) {
                       : "border-line/70 bg-surface hover:border-accent/40",
                   )}
                 >
-                  <div className="grid gap-2 md:grid-cols-[minmax(0,2.15fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1.8fr)] md:items-center lg:gap-3">
+                  <div className="grid gap-2 md:grid-cols-[minmax(0,2.5fr)_minmax(0,1.2fr)_minmax(0,1.9fr)] md:items-center lg:gap-3">
                     <div className="min-w-0">
                       <div className="flex items-center gap-3">
                         <NextImage
@@ -426,10 +421,6 @@ export function NetworkWorkspace({ className, people, header }) {
                         </div>
                       </div>
                     </div>
-
-                    <p className="text-xs text-muted md:text-sm">
-                      {person.program}
-                    </p>
 
                     <div>
                       {site ? (
