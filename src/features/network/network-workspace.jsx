@@ -422,7 +422,7 @@ export function NetworkWorkspace({ className, people, header }) {
                       </div>
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       {site ? (
                         <a
                           href={site.href}
@@ -431,7 +431,7 @@ export function NetworkWorkspace({ className, people, header }) {
                           title={site.href}
                           aria-label={`${person.fullName} site ${site.href}`}
                           onClick={(event) => event.stopPropagation()}
-                          className="block truncate text-xs text-accent-ink underline-offset-2 hover:underline"
+                          className="block max-w-full truncate text-xs text-accent-ink underline-offset-2 hover:underline"
                         >
                           {toBareUrl(site.href)}
                         </a>
