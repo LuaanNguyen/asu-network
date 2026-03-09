@@ -21,6 +21,8 @@ const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
 });
 
 const LINK_ICON_CLASS = "h-3.5 w-3.5";
+const NODE_RING_COLOR = "rgba(16, 45, 63, 0.52)";
+const NODE_RING_COLOR_SELECTED = "rgba(140, 29, 64, 0.62)";
 const LINK_ICON_BY_TYPE = {
   github: Github,
   linkedin: Linkedin,
@@ -571,7 +573,9 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
 
                   ctx.beginPath();
                   ctx.arc(x, y, radius + 0.35, 0, Math.PI * 2, false);
-                  ctx.strokeStyle = selected ? "#8c1d40" : "#03273a";
+                  ctx.strokeStyle = selected
+                    ? NODE_RING_COLOR_SELECTED
+                    : NODE_RING_COLOR;
                   ctx.lineWidth = selected ? 0.8 : 0.45;
                   ctx.stroke();
                 }}
