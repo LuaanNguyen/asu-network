@@ -9,7 +9,7 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { forceCollide, forceX, forceY } from "d3-force-3d";
+import { forceCollide, forceLink, forceX, forceY } from "d3-force-3d";
 import NextImage from "next/image";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -137,22 +137,24 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
           : 1280;
 
     if (width >= 1500) {
-      return 9;
-    }
-    if (width >= 1200) {
       return 8;
     }
-    if (width >= 900) {
+    if (width >= 1200) {
       return 7;
     }
-    if (width >= 700) {
+    if (width >= 900) {
       return 6;
     }
-    return 5;
+    if (width >= 700) {
+      return 5;
+    }
+    return 4;
   }, [graphSize.width]);
 
   const nodeCount = graphData.nodes.length;
-  const hasGraphLinks = graphData.links.length > 0;
+  const linkCount = graphData.links.length;
+  const hasGraphLinks = linkCount > 0;
+  const isDenseGraph = linkCount > 320 || nodeCount > 24;
   const graphTune = useMemo(() => {
     if (!hasGraphLinks) {
       if (nodeCount <= 6) {
@@ -262,17 +264,24 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
     graph.d3Force("collide", forceCollide(graphTune.collide).strength(1));
     graph.d3Force("charge")?.strength?.(graphTune.charge);
     graph.d3Force("charge")?.distanceMax?.(graphTune.chargeDistanceMax);
-    graph.d3Force("link")?.distance?.(graphTune.linkDistance);
-    graph
-      .d3Force("link")
-      ?.strength?.((link) =>
-        link?.inferred ? graphTune.inferredLinkStrength : graphTune.linkStrength,
+    if (hasGraphLinks && !isDenseGraph) {
+      graph.d3Force(
+        "link",
+        forceLink(graphData.links)
+          .id((node) => getNodeId(node?.id ?? node))
+          .distance(graphTune.linkDistance)
+          .strength((link) =>
+            link?.inferred ? graphTune.inferredLinkStrength : graphTune.linkStrength,
+          ),
       );
+    } else {
+      graph.d3Force("link", null);
+    }
     graph.d3Force("center")?.strength?.(graphTune.centerStrength);
     graph.d3Force("x", forceX(0).strength(graphTune.axisStrength));
     graph.d3Force("y", forceY(0).strength(graphTune.axisStrength));
     graph.d3ReheatSimulation?.();
-  }, [graphData, graphTune]);
+  }, [graphData, graphTune, hasGraphLinks, isDenseGraph]);
 
   useEffect(() => {
     needsSettledFitRef.current = graphData.nodes.length > 0;
@@ -487,10 +496,10 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
                 height={graphSize.height}
                 numDimensions={2}
                 graphData={graphData}
-                warmupTicks={160}
-                cooldownTicks={340}
-                d3AlphaDecay={0.012}
-                d3VelocityDecay={0.15}
+                warmupTicks={isDenseGraph ? 40 : 110}
+                cooldownTicks={isDenseGraph ? 120 : 260}
+                d3AlphaDecay={isDenseGraph ? 0.028 : 0.016}
+                d3VelocityDecay={isDenseGraph ? 0.24 : 0.18}
                 nodeRelSize={Math.max(5, Math.round(nodeRadius * 0.45))}
                 linkWidth={(link) => {
                   const source = getNodeId(link.source);
