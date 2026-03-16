@@ -308,6 +308,9 @@ export function JoinForm() {
         >
           {submitting ? "Submitting..." : "Submit Profile"}
         </button>
+        <p className="text-xs leading-relaxed text-muted">
+          note: submissions with very limited information may not be displayed.
+        </p>
 
         {status !== "idle" ? (
           <p
