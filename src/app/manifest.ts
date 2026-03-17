@@ -1,19 +1,24 @@
 import type { MetadataRoute } from "next";
+import { siteDescription, siteHost, siteName } from "@/lib/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "asunetwork.com — the network for people who build",
-    short_name: "asunetwork.com",
-    description:
-      "Discover ASU's top engineers, designers, creators, and researchers.",
+    name: `${siteName} — ${siteHost}`,
+    short_name: "asu network",
+    description: siteDescription,
     start_url: "/",
     display: "standalone",
     background_color: "#fff6ea",
     theme_color: "#8c1d40",
     icons: [
       {
-        src: "/asu_network.png",
-        sizes: "1536x1024",
+        src: "/icon-192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        src: "/icon-512.png",
+        sizes: "512x512",
         type: "image/png",
       },
     ],

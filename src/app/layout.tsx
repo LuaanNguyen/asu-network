@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Sora } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import {
+  metadataBase,
+  siteDescription,
+  siteHost,
+  siteName,
+  siteUrl,
+} from "@/lib/site";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -20,32 +27,26 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
-const defaultSiteUrl = "https://asunetwork.com";
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? defaultSiteUrl;
-const metadataBase = (() => {
-  try {
-    return new URL(siteUrl);
-  } catch {
-    return new URL(defaultSiteUrl);
-  }
-})();
+const ogImagePath = "/opengraph-image";
+const twitterImagePath = "/twitter-image";
 
 export const metadata: Metadata = {
   metadataBase,
   title: {
-    default: "asunetwork.com",
-    template: "%s | asunetwork.com",
+    default: `${siteName} | ${siteHost}`,
+    template: "%s | asu network",
   },
-  description:
-    "discover ASU's top engineers, designers, creators, and researchers. a searchable talent directory and connection graph for Arizona State University builders.",
-  applicationName: "asunetwork.com",
+  description: siteDescription,
+  applicationName: "asu network",
   alternates: {
     canonical: "/",
   },
   keywords: [
+    "asu network",
+    "asu network website",
+    "asu networking",
     "asu",
     "arizona state university",
-    "asu network",
     "asu talent",
     "asu engineers",
     "asu designers",
@@ -61,32 +62,40 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    url: "/",
-    siteName: "asunetwork.com",
-    title: "asunetwork.com — the network for people who build",
+    url: siteUrl,
+    siteName,
+    title: `${siteName} | ${siteHost}`,
     description:
-      "discover ASU's top engineers, designers, creators, and researchers. explore profiles, projects, and connections across Arizona State University.",
+      "discover and connect with arizona state university builders across engineering, product, design, and research.",
     locale: "en_US",
     images: [
       {
-        url: "/asu_network.png",
-        width: 1536,
-        height: 1024,
-        alt: "asunetwork.com — the network for people who build. A landing page showing a searchable talent directory for ASU builders.",
+        url: ogImagePath,
+        width: 1200,
+        height: 630,
+        alt: "asu network preview image",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "asunetwork.com — the network for people who build",
+    title: `${siteName} | ${siteHost}`,
     description:
-      "discover ASU's top engineers, designers, creators, and researchers. a searchable talent directory for Arizona State University.",
+      "discover and connect with arizona state university builders in one network.",
     images: [
       {
-        url: "/asu_network.png",
-        alt: "asunetwork.com — the network for people who build",
+        url: twitterImagePath,
+        alt: "asu network preview image",
       },
     ],
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", type: "image/x-icon", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: [{ url: "/favicon.ico", type: "image/x-icon" }],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
   },
   robots: {
     index: true,
@@ -103,6 +112,7 @@ export const metadata: Metadata = {
     "theme-color": "#8c1d40",
     "msapplication-TileColor": "#8c1d40",
   },
+  category: "education",
 };
 
 export default function RootLayout({
@@ -118,23 +128,52 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "WebSite",
-              name: "asunetwork.com",
-              url: siteUrl,
-              description:
-                "A searchable talent directory and connection graph for Arizona State University builders, engineers, designers, creators, and researchers.",
-              publisher: {
-                "@type": "Organization",
-                name: "asunetwork.com",
-                url: siteUrl,
-              },
-              potentialAction: {
-                "@type": "SearchAction",
-                target: {
-                  "@type": "EntryPoint",
-                  urlTemplate: `${siteUrl}/?q={search_term_string}`,
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": `${siteUrl}#organization`,
+                  name: "asu network",
+                  url: siteUrl,
+                  logo: `${siteUrl}/icon.svg`,
+                  sameAs: ["https://github.com/LuaanNguyen/asu-network"],
                 },
-                "query-input": "required name=search_term_string",
+                {
+                  "@type": "WebSite",
+                  "@id": `${siteUrl}#website`,
+                  name: "asu network",
+                  alternateName: "asunetwork.com",
+                  url: siteUrl,
+                  description:
+                    "a searchable talent directory and connection graph for arizona state university builders.",
+                  publisher: {
+                    "@id": `${siteUrl}#organization`,
+                  },
+                  potentialAction: {
+                    "@type": "SearchAction",
+                    target: {
+                      "@type": "EntryPoint",
+                      urlTemplate: `${siteUrl}/?q={search_term_string}`,
+                    },
+                    "query-input": "required name=search_term_string",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebPage",
+              name: "asu network",
+              url: siteUrl,
+              isPartOf: {
+                "@id": `${siteUrl}#website`,
+              },
+              about: {
+                "@id": `${siteUrl}#organization`,
               },
             }),
           }}
@@ -172,8 +211,8 @@ export default function RootLayout({
             </div>
           </footer>
         </div>
+        <Analytics />
       </body>
-      <Analytics />
     </html>
   );
 }

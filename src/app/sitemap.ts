@@ -1,7 +1,5 @@
 import type { MetadataRoute } from "next";
-
-const defaultSiteUrl = "https://asunetwork.com";
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? defaultSiteUrl;
+import { siteUrl } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
