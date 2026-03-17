@@ -281,6 +281,53 @@ export default function AdminSubmissionsPage() {
     }
   }
 
+  function clearPersonAvatar(personId: number) {
+    setPeopleRows((current) =>
+      current.map((entry) =>
+        entry.id === personId
+          ? { ...entry, avatarDataUrl: "", avatarUrl: "" }
+          : entry,
+      ),
+    );
+    setError("");
+    setMessage("photo cleared. click save to apply.");
+  }
+
+  async function onSubmissionAvatarFileChange(
+    submissionId: number,
+    file: File | null,
+  ) {
+    if (!file) {
+      updatePayloadField(submissionId, "avatarDataUrl", "");
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_SIZE_BYTES) {
+      setError("image too large. max file size is 2mb.");
+      return;
+    }
+
+    if (!isSupportedImageFile(file)) {
+      setError("unsupported image format. use png, jpg, webp, gif, or avif.");
+      return;
+    }
+
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      updatePayloadField(submissionId, "avatarDataUrl", dataUrl);
+      setError("");
+      setMessage("submission photo updated. approve to publish.");
+    } catch {
+      setError("could not read selected image.");
+    }
+  }
+
+  function clearSubmissionAvatar(submissionId: number) {
+    updatePayloadField(submissionId, "avatarDataUrl", "");
+    setError("");
+    setMessage("submission photo cleared.");
+  }
+
   async function savePerson(person: AdminPerson) {
     if (!token.trim()) {
       setError("enter admin token first.");
@@ -542,7 +589,9 @@ export default function AdminSubmissionsPage() {
                   <div className="text-right text-xs text-muted">
                     <p>id: {submission.id}</p>
                     <p>status: {submission.status}</p>
-                    <p>avatar: {submission.hasAvatar ? "uploaded" : "none"}</p>
+                    <p>
+                      avatar: {submission.payload.avatarDataUrl ? "uploaded" : "none"}
+                    </p>
                   </div>
                 </div>
 
@@ -648,6 +697,40 @@ export default function AdminSubmissionsPage() {
                     }
                   />
                 </div>
+
+                <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+                  <label className="flex flex-col gap-1.5">
+                    <span className="font-mono text-[10px] lowercase tracking-[0.14em] text-muted">
+                      replace photo
+                    </span>
+                    <input
+                      type="file"
+                      accept={IMAGE_INPUT_ACCEPT}
+                      disabled={locked}
+                      onChange={(event) =>
+                        onSubmissionAvatarFileChange(
+                          submission.id,
+                          event.currentTarget.files?.[0] ?? null,
+                        )
+                      }
+                      className="h-10 rounded-xl border border-line/80 bg-white px-2 py-2 text-xs outline-none ring-accent transition file:mr-2 file:rounded-lg file:border-0 file:bg-surface-strong/50 file:px-2 file:py-1 file:text-[11px] file:font-medium focus:ring-2 disabled:cursor-not-allowed"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    disabled={locked}
+                    onClick={() => clearSubmissionAvatar(submission.id)}
+                    className="mt-auto inline-flex h-10 items-center justify-center rounded-full border border-line px-4 text-xs font-semibold text-muted transition hover:border-accent hover:text-accent-ink disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    clear photo
+                  </button>
+                </div>
+
+                {submission.payload.avatarDataUrl ? (
+                  <p className="mt-2 text-xs text-emerald-700">
+                    photo ready. approve to publish with this image.
+                  </p>
+                ) : null}
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
@@ -839,7 +922,7 @@ export default function AdminSubmissionsPage() {
                   />
                 </div>
 
-                <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_170px]">
+                <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_170px]">
                   <label className="flex flex-col gap-1.5">
                     <span className="font-mono text-[10px] lowercase tracking-[0.14em] text-muted">
                       replace photo
@@ -857,6 +940,13 @@ export default function AdminSubmissionsPage() {
                       className="h-10 rounded-xl border border-line/80 bg-white px-2 py-2 text-xs outline-none ring-accent transition file:mr-2 file:rounded-lg file:border-0 file:bg-surface-strong/50 file:px-2 file:py-1 file:text-[11px] file:font-medium focus:ring-2 disabled:cursor-not-allowed"
                     />
                   </label>
+
+                  <EditableInput
+                    label="avatar url"
+                    value={person.avatarUrl}
+                    disabled={savingPersonId === person.id}
+                    onChange={(value) => updatePersonField(person.id, "avatarUrl", value)}
+                  />
 
                   <label className="flex flex-col gap-1.5">
                     <span className="font-mono text-[10px] lowercase tracking-[0.14em] text-muted">
@@ -885,6 +975,14 @@ export default function AdminSubmissionsPage() {
                     new photo selected. click save to apply.
                   </p>
                 ) : null}
+                <button
+                  type="button"
+                  disabled={savingPersonId === person.id}
+                  onClick={() => clearPersonAvatar(person.id)}
+                  className="mt-2 inline-flex h-8 items-center justify-center rounded-full border border-line px-3 text-xs font-semibold text-muted transition hover:border-accent hover:text-accent-ink disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  clear photo
+                </button>
                 <p className="mt-2 text-xs text-muted">
                   {person.email || "(no email link)"} ·{" "}
                   {person.isPublished ? "published" : "hidden"}
