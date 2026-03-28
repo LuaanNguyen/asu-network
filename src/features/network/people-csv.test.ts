@@ -30,7 +30,6 @@ describe("serializePeopleCsv", () => {
       slug: "maya-chen",
       fullName: 'maya "m" chen',
       headline: 'builds "systems", infra',
-      bio: "line 1\nline 2",
       program: "computer science",
       gradYear: 2027,
       location: "tempe, az",
@@ -78,35 +77,27 @@ describe("serializePeopleCsv", () => {
       [
         '"full_name"',
         '"headline"',
-        '"bio"',
         '"program"',
         '"grad_year"',
         '"location"',
-        '"avatar_url"',
         '"website_url"',
         '"github_url"',
         '"linkedin_url"',
         '"x_url"',
         '"email"',
-        '"focus_areas"',
-        '"worked_at"',
-        '"connected_people"',
-        '"slug"',
-        '"profile_url"',
       ].join(","),
     );
     expect(csv).toContain('"maya ""m"" chen"');
     expect(csv).toContain('"builds ""systems"", infra"');
-    expect(csv).toContain('"line 1\nline 2"');
-    expect(csv).toContain(',"","https://maya.dev"');
+    expect(csv).toContain('"computer science"');
+    expect(csv).toContain('"2027"');
+    expect(csv).toContain('"tempe, az"');
+    expect(csv).toContain('"https://maya.dev"');
     expect(csv).not.toContain("data:image/png;base64");
     expect(csv).toContain('"maya@asu.edu"');
     expect(csv).not.toContain("mailto:maya@asu.edu");
-    expect(csv).toContain('"systems | ai"');
-    expect(csv).toContain('"google | openai"');
-    expect(csv).toContain('"sam lee"');
-    expect(csv).not.toContain('"missing"');
-    expect(csv).toContain('"https://asunetwork.com/people/maya-chen"');
+    expect(csv).not.toContain('"focus_areas"');
+    expect(csv).not.toContain('"profile_url"');
     expect(csv.endsWith("\r\n")).toBe(true);
   });
 });

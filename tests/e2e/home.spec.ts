@@ -107,11 +107,11 @@ test("downloads only the currently visible people as csv", async ({ page }) => {
 
   expect(csv.startsWith("\ufeff")).toBe(true);
   expect(csv).toContain(
-    '"full_name","headline","bio","program","grad_year","location","avatar_url","website_url","github_url","linkedin_url","x_url","email","focus_areas","worked_at","connected_people","slug","profile_url"',
+    '"full_name","headline","program","grad_year","location","website_url","github_url","linkedin_url","x_url","email"',
   );
   expect(csv).toContain('"maya chen"');
   expect(csv).not.toContain('"alex kim","product-minded engineer"');
   expect(csv).toContain('"maya@asu.edu"');
-  expect(csv).toContain('"alex kim"');
-  expect(csv).toContain('"https://asunetwork.com/people/maya-chen"');
+  expect(csv).toContain('"https://maya.dev"');
+  expect(csv).not.toContain('"profile_url"');
 });
