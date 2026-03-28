@@ -52,7 +52,7 @@ export function serializePeopleCsv(
         person.program,
         String(person.gradYear),
         person.location,
-        person.avatarUrl,
+        toExportAvatarUrl(person.avatarUrl),
         findLinkHref(person.links, "site"),
         findLinkHref(person.links, "github"),
         findLinkHref(person.links, "linkedin"),
@@ -147,4 +147,22 @@ function normalizeSiteUrl(input: string): string {
   } catch {
     return trimmed.replace(/\/+$/g, "");
   }
+}
+
+function toExportAvatarUrl(avatarUrl: string): string {
+  const trimmed = avatarUrl.trim();
+  if (!trimmed || /^data:image\//i.test(trimmed)) {
+    return "";
+  }
+
+  try {
+    const url = new URL(trimmed);
+    if (url.protocol === "http:" || url.protocol === "https:") {
+      return trimmed;
+    }
+  } catch {
+    return "";
+  }
+
+  return "";
 }

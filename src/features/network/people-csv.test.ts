@@ -34,7 +34,7 @@ describe("serializePeopleCsv", () => {
       program: "computer science",
       gradYear: 2027,
       location: "tempe, az",
-      avatarUrl: "https://example.com/maya.png",
+      avatarUrl: "data:image/png;base64,abc123==",
       focusAreas: ["systems", "ai"],
       links: [
         { type: "site", label: "site", href: "https://maya.dev" },
@@ -98,6 +98,8 @@ describe("serializePeopleCsv", () => {
     expect(csv).toContain('"maya ""m"" chen"');
     expect(csv).toContain('"builds ""systems"", infra"');
     expect(csv).toContain('"line 1\nline 2"');
+    expect(csv).toContain(',"","https://maya.dev"');
+    expect(csv).not.toContain("data:image/png;base64");
     expect(csv).toContain('"maya@asu.edu"');
     expect(csv).not.toContain("mailto:maya@asu.edu");
     expect(csv).toContain('"systems | ai"');
