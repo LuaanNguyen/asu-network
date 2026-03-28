@@ -2,6 +2,7 @@
 
 import {
   Check,
+  Download,
   Github,
   LinkIcon,
   Linkedin,
@@ -14,7 +15,12 @@ import NextImage from "next/image";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { siteUrl } from "@/lib/site";
 import { cn } from "@/lib/utils/cn";
+import {
+  buildPeopleCsvFilename,
+  serializePeopleCsv,
+} from "@/features/network/people-csv";
 
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
@@ -336,6 +342,7 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
     filteredPeople.find((person) => person.id === activeSelectedId) ??
     people.find((person) => person.id === activeSelectedId) ??
     null;
+  const canDownloadCsv = !isLoading && filteredPeople.length > 0;
 
   function getAvatarImage(url) {
     let image = imageCache.current.get(url);
@@ -346,6 +353,29 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
       imageCache.current.set(url, image);
     }
     return image.complete ? image : null;
+  }
+
+  function handleDownloadCsv() {
+    if (!canDownloadCsv) {
+      return;
+    }
+
+    const csv = serializePeopleCsv(filteredPeople, people, siteUrl);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+
+    anchor.href = downloadUrl;
+    anchor.download = buildPeopleCsvFilename(query);
+    anchor.style.display = "none";
+
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+
+    window.setTimeout(() => {
+      window.URL.revokeObjectURL(downloadUrl);
+    }, 0);
   }
 
   return (
@@ -365,9 +395,25 @@ export function NetworkWorkspace({ className, people, header, isLoading = false 
       >
         {header}
         <header className="space-y-3">
-          <p className="font-mono text-xs lowercase tracking-[0.16em] text-muted">
-            {isLoading ? "loading members..." : `${filteredPeople.length} members`}
-          </p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-mono text-xs lowercase tracking-[0.16em] text-muted">
+              {isLoading ? "loading members..." : `${filteredPeople.length} members`}
+            </p>
+            <button
+              type="button"
+              onClick={handleDownloadCsv}
+              disabled={!canDownloadCsv}
+              className={cn(
+                "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-[11px] font-semibold lowercase transition",
+                canDownloadCsv
+                  ? "border-line bg-surface text-muted hover:border-accent hover:bg-accent/10 hover:text-accent-ink"
+                  : "cursor-not-allowed border-line/60 bg-surface/60 text-muted/55",
+              )}
+            >
+              <Download size={13} />
+              download csv
+            </button>
+          </div>
           <label className="relative block">
             <Search
               size={16}
