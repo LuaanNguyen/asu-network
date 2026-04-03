@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { getDb } from "@/db/client";
 import { links, people, submissions } from "@/db/schema";
-import { requireAdminToken } from "@/lib/server/admin-auth";
+import { requireAdminSession } from "@/lib/server/admin-auth";
 import { submissionSchema, type SubmissionInput } from "@/lib/validation/submission";
 
 const moderationSchema = z.object({
@@ -20,7 +20,7 @@ type RouteContext = {
 };
 
 export async function POST(request: Request, { params }: RouteContext) {
-  const auth = requireAdminToken(request);
+  const auth = await requireAdminSession();
   if (!auth.ok) {
     return auth.response;
   }
@@ -78,6 +78,7 @@ export async function POST(request: Request, { params }: RouteContext) {
 
   const { action, reviewNotes, payloadOverride } = parsedBody.data;
   const reviewedAt = new Date();
+  const reviewedByEmail = auth.adminEmail;
 
   if (action === "reject") {
     const updated = await db
@@ -85,12 +86,14 @@ export async function POST(request: Request, { params }: RouteContext) {
       .set({
         status: "rejected",
         reviewNotes,
+        reviewedByEmail,
         reviewedAt,
       })
       .where(eq(submissions.id, submissionId))
       .returning({
         id: submissions.id,
         status: submissions.status,
+        reviewedByEmail: submissions.reviewedByEmail,
         reviewedAt: submissions.reviewedAt,
       });
     const row = updated[0];
@@ -98,6 +101,7 @@ export async function POST(request: Request, { params }: RouteContext) {
     return NextResponse.json({
       id: row?.id ?? submissionId,
       status: row?.status ?? "rejected",
+      reviewedByEmail: row?.reviewedByEmail ?? reviewedByEmail,
       reviewedAt: row?.reviewedAt?.toISOString() ?? reviewedAt.toISOString(),
     });
   }
@@ -169,6 +173,7 @@ export async function POST(request: Request, { params }: RouteContext) {
           location: "tempe, az",
           avatarUrl,
           isPublished: true,
+          updatedByEmail: reviewedByEmail,
         })
         .returning({
           id: people.id,
@@ -229,6 +234,7 @@ export async function POST(request: Request, { params }: RouteContext) {
         .set({
           status: "approved",
           reviewNotes,
+          reviewedByEmail,
           reviewedAt,
         })
         .where(
@@ -239,9 +245,10 @@ export async function POST(request: Request, { params }: RouteContext) {
         )
         .returning({
           id: submissions.id,
-          status: submissions.status,
-          reviewedAt: submissions.reviewedAt,
-        });
+        status: submissions.status,
+        reviewedByEmail: submissions.reviewedByEmail,
+        reviewedAt: submissions.reviewedAt,
+      });
       const moderationResult = updatedSubmission[0];
       if (!moderationResult) {
         throw new Error("submission status update failed");
@@ -252,6 +259,8 @@ export async function POST(request: Request, { params }: RouteContext) {
         personSlug: person.slug,
         submissionId: moderationResult.id,
         status: moderationResult.status,
+        reviewedByEmail:
+          moderationResult.reviewedByEmail ?? reviewedByEmail,
         reviewedAt: moderationResult.reviewedAt?.toISOString() ?? reviewedAt.toISOString(),
       };
     });

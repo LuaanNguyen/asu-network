@@ -1,10 +1,10 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getDb } from "@/db/client";
 import { links, people } from "@/db/schema";
-import { requireAdminToken } from "@/lib/server/admin-auth";
+import { requireAdminSession } from "@/lib/server/admin-auth";
 
 type RouteContext = {
   params: Promise<{
@@ -66,7 +66,7 @@ const adminPersonUpdateSchema = z.object({
 });
 
 export async function PATCH(request: Request, { params }: RouteContext) {
-  const auth = requireAdminToken(request);
+  const auth = await requireAdminSession();
   if (!auth.ok) {
     return auth.response;
   }
@@ -113,7 +113,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
           isPublished: people.isPublished,
         })
         .from(people)
-        .where(eq(people.id, personId))
+        .where(and(eq(people.id, personId), isNull(people.deletedAt)))
         .limit(1);
       const existing = existingRows[0];
       if (!existing) {
@@ -145,9 +145,10 @@ export async function PATCH(request: Request, { params }: RouteContext) {
           bio,
           avatarUrl,
           isPublished: payload.isPublished ?? existing.isPublished,
+          updatedByEmail: auth.adminEmail,
           updatedAt: new Date(),
         })
-        .where(eq(people.id, personId))
+        .where(and(eq(people.id, personId), isNull(people.deletedAt)))
         .returning({
           id: people.id,
           fullName: people.fullName,
@@ -157,6 +158,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
           bio: people.bio,
           avatarUrl: people.avatarUrl,
           isPublished: people.isPublished,
+          updatedByEmail: people.updatedByEmail,
         });
       const updated = updatedRows[0];
       if (!updated) {
@@ -222,6 +224,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       bio: result.bio,
       avatarUrl: result.avatarUrl,
       isPublished: result.isPublished,
+      updatedByEmail: result.updatedByEmail,
       updated: true,
     });
   } catch (error) {
@@ -237,7 +240,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
 }
 
 export async function DELETE(request: Request, { params }: RouteContext) {
-  const auth = requireAdminToken(request);
+  const auth = await requireAdminSession();
   if (!auth.ok) {
     return auth.response;
   }
@@ -256,12 +259,22 @@ export async function DELETE(request: Request, { params }: RouteContext) {
     return NextResponse.json({ error: "invalid person id" }, { status: 400 });
   }
 
+  const deletedAt = new Date();
   const deleted = await db
-    .delete(people)
-    .where(eq(people.id, personId))
+    .update(people)
+    .set({
+      isPublished: false,
+      deletedAt,
+      deletedByEmail: auth.adminEmail,
+      updatedByEmail: auth.adminEmail,
+      updatedAt: deletedAt,
+    })
+    .where(and(eq(people.id, personId), isNull(people.deletedAt)))
     .returning({
       id: people.id,
       fullName: people.fullName,
+      deletedAt: people.deletedAt,
+      deletedByEmail: people.deletedByEmail,
     });
   const row = deleted[0];
   if (!row) {
@@ -271,6 +284,8 @@ export async function DELETE(request: Request, { params }: RouteContext) {
   return NextResponse.json({
     id: row.id,
     fullName: row.fullName,
+    deletedAt: row.deletedAt?.toISOString() ?? deletedAt.toISOString(),
+    deletedByEmail: row.deletedByEmail ?? auth.adminEmail,
     deleted: true,
   });
 }

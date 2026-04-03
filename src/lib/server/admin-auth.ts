@@ -1,29 +1,59 @@
+import type { Session } from "next-auth";
 import { NextResponse } from "next/server";
 
-import { env } from "@/lib/env/server";
+import { auth } from "@/auth";
+import {
+  getAdminAuthConfigStatus,
+  isAllowedAdminEmail,
+  normalizeAdminEmail,
+} from "@/lib/server/admin-access";
 
-type AdminAuthResult =
-  | { ok: true }
-  | { ok: false; response: NextResponse };
+type AdminSessionResult =
+  | {
+      ok: true;
+      adminEmail: string;
+      session: Session;
+    }
+  | {
+      ok: false;
+      response: NextResponse;
+    };
 
-export function requireAdminToken(request: Request): AdminAuthResult {
-  if (!env.ADMIN_TOKEN) {
+export async function requireAdminSession(): Promise<AdminSessionResult> {
+  const authConfig = getAdminAuthConfigStatus();
+  if (!authConfig.ready) {
     return {
       ok: false,
       response: NextResponse.json(
-        { error: "admin token is not configured" },
+        {
+          error: "admin auth is not configured",
+          missing: authConfig.missing,
+        },
         { status: 503 },
       ),
     };
   }
 
-  const providedToken = request.headers.get("x-admin-token")?.trim();
-  if (!providedToken || providedToken !== env.ADMIN_TOKEN) {
+  const session = await auth();
+  const adminEmail = normalizeAdminEmail(session?.user?.email);
+
+  if (!session || adminEmail === null) {
     return {
       ok: false,
-      response: NextResponse.json({ error: "unauthorized" }, { status: 401 }),
+      response: NextResponse.json({ error: "unauthenticated" }, { status: 401 }),
     };
   }
 
-  return { ok: true };
+  if (!isAllowedAdminEmail(adminEmail, authConfig.allowedEmails)) {
+    return {
+      ok: false,
+      response: NextResponse.json({ error: "forbidden" }, { status: 403 }),
+    };
+  }
+
+  return {
+    ok: true,
+    adminEmail,
+    session,
+  };
 }

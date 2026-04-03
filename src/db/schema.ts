@@ -38,6 +38,9 @@ export const people = pgTable(
     location: text("location"),
     avatarUrl: text("avatar_url"),
     isPublished: boolean("is_published").notNull().default(false),
+    updatedByEmail: text("updated_by_email"),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    deletedByEmail: text("deleted_by_email"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -141,6 +144,7 @@ export const submissions = pgTable(
     userAgent: text("user_agent"),
     status: submissionStatusEnum("status").notNull().default("pending"),
     reviewNotes: text("review_notes"),
+    reviewedByEmail: text("reviewed_by_email"),
     submittedAt: timestamp("submitted_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

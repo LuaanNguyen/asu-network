@@ -19,6 +19,14 @@ export default defineConfig({
     url: `http://127.0.0.1:${port}`,
     timeout: 120_000,
     reuseExistingServer: !process.env.CI,
+    env: {
+      ...process.env,
+      AUTH_ENABLE_TEST_PROVIDER: "1",
+      AUTH_SECRET: "playwright-auth-secret",
+      AUTH_TEST_PASSWORD: "admin-test-password",
+      ADMIN_ALLOWED_EMAILS: "admin@asu.edu",
+      NEXT_PUBLIC_SITE_URL: `http://127.0.0.1:${port}`,
+    },
   },
   projects: [
     {

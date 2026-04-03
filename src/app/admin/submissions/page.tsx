@@ -1,7 +1,8 @@
 "use client";
 
 import NextImage from "next/image";
-import { useMemo, useState } from "react";
+import { signOut } from "next-auth/react";
+import { useEffect, useMemo, useState } from "react";
 
 type EditablePayload = {
   fullName: string;
@@ -23,6 +24,7 @@ type AdminSubmission = {
   email: string;
   submittedAt: string | null;
   reviewedAt: string | null;
+  reviewedByEmail: string;
   reviewNotes: string;
   fullName: string;
   asuProgram: string;
@@ -54,6 +56,7 @@ type AdminPerson = {
   x: string;
   isPublished: boolean;
   linkCount: number;
+  updatedByEmail: string;
   createdAt: string | null;
 };
 
@@ -97,7 +100,7 @@ const SUPPORTED_IMAGE_EXTENSIONS = [
 const IMAGE_INPUT_ACCEPT = "image/png,image/jpeg,image/webp,image/gif,image/avif";
 
 export default function AdminSubmissionsPage() {
-  const [token, setToken] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
   const [peopleQuery, setPeopleQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "pending" | "approved" | "rejected" | "all"
@@ -116,29 +119,54 @@ export default function AdminSubmissionsPage() {
     [submissions],
   );
 
-  async function loadSubmissions() {
-    if (!token.trim()) {
-      setError("enter admin token first.");
-      return;
+  useEffect(() => {
+    void loadAdminSession();
+  }, []);
+
+  useEffect(() => {
+    void loadSubmissions();
+  }, [statusFilter]);
+
+  async function loadAdminSession() {
+    try {
+      const response = await fetch("/api/auth/session", {
+        cache: "no-store",
+      });
+      const payload = (await response.json().catch(() => null)) as
+        | { user?: { email?: string | null } }
+        | null;
+
+      if (!response.ok) {
+        throw new Error("could not load admin session");
+      }
+
+      setAdminEmail(toSafeString(payload?.user?.email));
+    } catch (sessionError) {
+      setError(
+        sessionError instanceof Error
+          ? sessionError.message
+          : "could not load admin session",
+      );
     }
+  }
+
+  async function loadSubmissions() {
     setLoading(true);
     setError("");
     setMessage("");
 
     try {
-      const response = await fetch(
-        `/api/admin/submissions?status=${statusFilter}&limit=100`,
-        {
-          headers: {
-            "x-admin-token": token.trim(),
-          },
-          cache: "no-store",
-        },
-      );
+      const response = await fetch(`/api/admin/submissions?status=${statusFilter}&limit=100`, {
+        cache: "no-store",
+      });
 
       const payload = (await response.json().catch(() => null)) as
         | AdminSubmissionsResponse
         | null;
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = "/admin/login";
+        return;
+      }
       if (!response.ok) {
         throw new Error(payload?.error ?? "failed to load submissions");
       }
@@ -159,10 +187,6 @@ export default function AdminSubmissionsPage() {
   }
 
   async function loadPeople() {
-    if (!token.trim()) {
-      setError("enter admin token first.");
-      return;
-    }
     setPeopleLoading(true);
     setError("");
     setMessage("");
@@ -177,15 +201,16 @@ export default function AdminSubmissionsPage() {
       }
 
       const response = await fetch(`/api/admin/people?${params.toString()}`, {
-        headers: {
-          "x-admin-token": token.trim(),
-        },
         cache: "no-store",
       });
 
       const payload = (await response.json().catch(() => null)) as
         | AdminPeopleResponse
         | null;
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = "/admin/login";
+        return;
+      }
       if (!response.ok) {
         throw new Error(payload?.error ?? "failed to load people");
       }
@@ -206,11 +231,6 @@ export default function AdminSubmissionsPage() {
   }
 
   async function removePerson(person: AdminPerson) {
-    if (!token.trim()) {
-      setError("enter admin token first.");
-      return;
-    }
-
     const confirmed = window.confirm(
       `remove ${person.fullName} from people? this cannot be undone.`,
     );
@@ -224,13 +244,14 @@ export default function AdminSubmissionsPage() {
     try {
       const response = await fetch(`/api/admin/people/${person.id}`, {
         method: "DELETE",
-        headers: {
-          "x-admin-token": token.trim(),
-        },
       });
       const payload = (await response.json().catch(() => null)) as
         | { error?: string; deleted?: boolean }
         | null;
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = "/admin/login";
+        return;
+      }
       if (!response.ok) {
         throw new Error(payload?.error ?? "failed to remove person");
       }
@@ -329,11 +350,6 @@ export default function AdminSubmissionsPage() {
   }
 
   async function savePerson(person: AdminPerson) {
-    if (!token.trim()) {
-      setError("enter admin token first.");
-      return;
-    }
-
     setSavingPersonId(person.id);
     setError("");
     setMessage("");
@@ -343,7 +359,6 @@ export default function AdminSubmissionsPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-token": token.trim(),
         },
         body: JSON.stringify({
           fullName: person.fullName,
@@ -372,8 +387,13 @@ export default function AdminSubmissionsPage() {
             bio?: string;
             avatarUrl?: string;
             isPublished?: boolean;
+            updatedByEmail?: string;
           }
         | null;
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = "/admin/login";
+        return;
+      }
       if (!response.ok) {
         throw new Error(payload?.error ?? "failed to save person");
       }
@@ -396,6 +416,8 @@ export default function AdminSubmissionsPage() {
                   typeof payload?.isPublished === "boolean"
                     ? payload.isPublished
                     : entry.isPublished,
+                updatedByEmail:
+                  toSafeString(payload?.updatedByEmail) || entry.updatedByEmail,
                 avatarDataUrl: "",
               }
             : entry,
@@ -427,11 +449,6 @@ export default function AdminSubmissionsPage() {
     submission: AdminSubmission,
     action: "approve" | "reject",
   ) {
-    if (!token.trim()) {
-      setError("enter admin token first.");
-      return;
-    }
-
     const reviewNotes =
       action === "reject"
         ? window.prompt("optional rejection note", "") ?? ""
@@ -453,7 +470,6 @@ export default function AdminSubmissionsPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-token": token.trim(),
         },
         body: JSON.stringify({
           action,
@@ -465,6 +481,10 @@ export default function AdminSubmissionsPage() {
       const payload = (await response.json().catch(() => null)) as
         | { error?: string; status?: string }
         | null;
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = "/admin/login";
+        return;
+      }
       if (!response.ok) {
         throw new Error(payload?.error ?? "moderation failed");
       }
@@ -487,26 +507,32 @@ export default function AdminSubmissionsPage() {
   return (
     <main className="mx-auto w-full max-w-6xl space-y-6 px-5 py-8 sm:px-8">
       <section className="rounded-2xl border border-line/70 bg-surface p-5 sm:p-6">
-        <h1 className="display-heading text-3xl">admin submissions</h1>
-        <p className="mt-2 text-sm text-muted">
-          review incoming join requests. you can edit and format fields before approving.
-        </p>
-
-        <div className="mt-5 grid gap-3 sm:grid-cols-[2fr_1fr_auto]">
-          <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-xs tracking-[0.14em] text-muted">admin token</span>
-            <input
-              type="password"
-              value={token}
-              onChange={(event) => {
-                const nextToken = event.currentTarget.value;
-                setToken(nextToken);
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="display-heading text-3xl">admin submissions</h1>
+            <p className="mt-2 text-sm text-muted">
+              review incoming join requests. you can edit and format fields before approving.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="rounded-full border border-line bg-white px-3 py-2 text-xs text-muted">
+              {adminEmail ? `signed in as ${adminEmail}` : "loading session..."}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                void signOut({
+                  redirectTo: "/admin/login",
+                });
               }}
-              className="h-11 rounded-xl border border-line/80 bg-white px-4 text-sm outline-none ring-accent transition focus:ring-2"
-              placeholder="paste admin token"
-            />
-          </label>
+              className="inline-flex h-10 items-center justify-center rounded-full border border-line px-4 text-sm font-semibold text-foreground transition hover:border-accent hover:text-accent-ink"
+            >
+              sign out
+            </button>
+          </div>
+        </div>
 
+        <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
           <label className="flex flex-col gap-1.5">
             <span className="font-mono text-xs tracking-[0.14em] text-muted">status</span>
             <select
@@ -589,6 +615,9 @@ export default function AdminSubmissionsPage() {
                   <div className="text-right text-xs text-muted">
                     <p>id: {submission.id}</p>
                     <p>status: {submission.status}</p>
+                    {submission.reviewedByEmail ? (
+                      <p>reviewed by: {submission.reviewedByEmail}</p>
+                    ) : null}
                     <p>
                       avatar: {submission.payload.avatarDataUrl ? "uploaded" : "none"}
                     </p>
@@ -986,6 +1015,7 @@ export default function AdminSubmissionsPage() {
                 <p className="mt-2 text-xs text-muted">
                   {person.email || "(no email link)"} ·{" "}
                   {person.isPublished ? "published" : "hidden"}
+                  {person.updatedByEmail ? ` · last updated by ${person.updatedByEmail}` : ""}
                 </p>
               </article>
             ))
@@ -1078,6 +1108,7 @@ function normalizeSubmission(
     email: toSafeString(entry.email),
     submittedAt: typeof entry.submittedAt === "string" ? entry.submittedAt : null,
     reviewedAt: typeof entry.reviewedAt === "string" ? entry.reviewedAt : null,
+    reviewedByEmail: toSafeString(entry.reviewedByEmail),
     reviewNotes: toSafeString(entry.reviewNotes),
     fullName: toSafeString(entry.fullName),
     asuProgram: toSafeString(entry.asuProgram),
@@ -1129,6 +1160,7 @@ function normalizeAdminPerson(entry: Partial<AdminPerson>): AdminPerson {
     x: toSafeString(entry.x),
     isPublished: entry.isPublished !== false,
     linkCount: Number(entry.linkCount ?? 0),
+    updatedByEmail: toSafeString(entry.updatedByEmail),
     createdAt: typeof entry.createdAt === "string" ? entry.createdAt : null,
   };
 }

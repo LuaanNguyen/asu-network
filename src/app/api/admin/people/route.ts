@@ -1,10 +1,10 @@
-import { desc, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, desc, ilike, inArray, isNull, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getDb } from "@/db/client";
 import { links, people } from "@/db/schema";
-import { requireAdminToken } from "@/lib/server/admin-auth";
+import { requireAdminSession } from "@/lib/server/admin-auth";
 
 const SUPPORTED_DATA_IMAGE_PATTERN =
   /^data:image\/(?:png|jpe?g|webp|gif|avif);base64,[a-zA-Z0-9+/=]+$/i;
@@ -15,7 +15,7 @@ const adminPeopleQuerySchema = z.object({
 });
 
 export async function GET(request: Request) {
-  const auth = requireAdminToken(request);
+  const auth = await requireAdminSession();
   if (!auth.ok) {
     return auth.response;
   }
@@ -42,14 +42,16 @@ export async function GET(request: Request) {
 
   const { q, limit } = parsed.data;
   const term = q.trim();
-  const where =
+  const where = and(
+    isNull(people.deletedAt),
     term.length > 0
       ? or(
           ilike(people.fullName, `%${term}%`),
           ilike(people.program, `%${term}%`),
           ilike(people.headline, `%${term}%`),
         )
-      : undefined;
+      : undefined,
+  );
 
   const personRows = await db
     .select({
@@ -62,6 +64,7 @@ export async function GET(request: Request) {
       bio: people.bio,
       avatarUrl: people.avatarUrl,
       isPublished: people.isPublished,
+      updatedByEmail: people.updatedByEmail,
       createdAt: people.createdAt,
     })
     .from(people)
@@ -138,6 +141,7 @@ export async function GET(request: Request) {
       site: siteByPerson.get(row.id) ?? "",
       x: xByPerson.get(row.id) ?? "",
       linkCount: linkCountByPerson.get(row.id) ?? 0,
+      updatedByEmail: row.updatedByEmail ?? "",
       createdAt: row.createdAt?.toISOString() ?? null,
     })),
     total: Number(countRows[0]?.count ?? personRows.length),

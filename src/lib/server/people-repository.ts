@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, isNull, or, sql } from "drizzle-orm";
 
 import { getDb } from "@/db/client";
 import {
@@ -147,7 +147,10 @@ async function listPeopleFromDb(query: PeopleQuery): Promise<PeopleResult> {
 
   const linksByPerson = groupByPerson(linkRows);
   const skillsByPerson = groupSkillNames(skillRows);
-  const connectionsByPerson = buildConnectionMap(connectionRows);
+  const connectionsByPerson = buildConnectionMap(
+    connectionRows,
+    new Set(personIds),
+  );
   const organizationsByPerson = groupOrganizationNames(organizationRows);
 
   const mapped = personRows.map((row) => {
@@ -209,7 +212,7 @@ function listPeopleFromSample(query: PeopleQuery): PeopleResult {
 }
 
 function buildWhere(q: string, program: string) {
-  const base = [eq(people.isPublished, true)];
+  const base = [eq(people.isPublished, true), isNull(people.deletedAt)];
   if (program !== "all") {
     base.push(eq(people.program, program));
   }
@@ -263,9 +266,19 @@ function groupOrganizationNames(rows: { personId: number; organizationName: stri
   return map;
 }
 
-function buildConnectionMap(rows: { sourcePersonId: number; targetPersonId: number }[]) {
+function buildConnectionMap(
+  rows: { sourcePersonId: number; targetPersonId: number }[],
+  visibleIds: Set<number>,
+) {
   const map = new Map<number, string[]>();
   for (const row of rows) {
+    if (
+      !visibleIds.has(row.sourcePersonId) ||
+      !visibleIds.has(row.targetPersonId)
+    ) {
+      continue;
+    }
+
     const source = map.get(row.sourcePersonId) ?? [];
     source.push(toClientPersonId(row.targetPersonId));
     map.set(row.sourcePersonId, source);

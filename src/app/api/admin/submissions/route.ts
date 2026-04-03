@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { getDb } from "@/db/client";
 import { submissions } from "@/db/schema";
-import { requireAdminToken } from "@/lib/server/admin-auth";
+import { requireAdminSession } from "@/lib/server/admin-auth";
 import { submissionSchema } from "@/lib/validation/submission";
 
 const adminSubmissionQuerySchema = z.object({
@@ -13,7 +13,7 @@ const adminSubmissionQuerySchema = z.object({
 });
 
 export async function GET(request: Request) {
-  const auth = requireAdminToken(request);
+  const auth = await requireAdminSession();
   if (!auth.ok) {
     return auth.response;
   }
@@ -46,6 +46,7 @@ export async function GET(request: Request) {
       email: submissions.email,
       status: submissions.status,
       reviewNotes: submissions.reviewNotes,
+      reviewedByEmail: submissions.reviewedByEmail,
       submittedAt: submissions.submittedAt,
       reviewedAt: submissions.reviewedAt,
     })
@@ -80,6 +81,7 @@ export async function GET(request: Request) {
       submittedAt: row.submittedAt?.toISOString() ?? null,
       reviewedAt: row.reviewedAt?.toISOString() ?? null,
       reviewNotes: row.reviewNotes ?? "",
+      reviewedByEmail: row.reviewedByEmail ?? "",
       fullName: payload?.fullName ?? "(invalid payload)",
       asuProgram: payload?.asuProgram ?? "",
       headline: payload?.headline ?? "",
