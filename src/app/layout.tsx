@@ -183,6 +183,18 @@ export default function RootLayout({
         className={`${sora.variable} ${plexSans.variable} ${plexMono.variable} lowercase antialiased`}
       >
         <div className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col">
+          <div className="px-4 pt-4 sm:px-6 lg:px-6 xl:px-8">
+            <div className="shell rounded-2xl border border-line/60 px-4 py-2.5 text-center text-xs text-muted sm:text-sm">
+              this directory may not reflect the most up-to-date data.{" "}
+              <a
+                href="/join"
+                className="text-accent-ink underline underline-offset-2 hover:underline"
+              >
+                submit your profile
+              </a>{" "}
+              to help us keep it current
+            </div>
+          </div>
           <div className="flex-1">{children}</div>
           <footer className="px-4 pb-4 sm:px-6 lg:px-6 lg:pb-2 xl:px-8">
             <div className="shell flex flex-col gap-1.5 rounded-2xl border border-line/60 px-4 py-2.5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between lg:px-5 lg:py-2">
